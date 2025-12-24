@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Camera Controls & Stream</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>Camera Controls</h1>
+  <div id="controls"></div>
+
+  <h2>Live Stream</h2>
+  <img id="stream" src="/video_feed" width="960" />
+
+  <script>
+    async function loadControls(){
+      const res = await fetch('/controls');
+      const data = await res.json();
+      const container = document.getElementById('controls');
+      container.innerHTML = '';
+      for (const [name, info] of Object.entries(data)){
+        const div = document.createElement('div');
+        div.className = 'ctrl';
+        const label = document.createElement('label');
+        label.textContent = name;
+        div.appendChild(label);
+
+        if (info.type === 'int') {
+          const slider = document.createElement('input');
+          slider.type = 'range';
+          slider.min = info.min;
+          slider.max = info.max;
+          slider.step = info.step || 1;
+          slider.value = info.value;
+          const valSpan = document.createElement('span');
+          valSpan.className = 'val';
+          valSpan.textContent = info.value;
+          slider.oninput = () => { valSpan.textContent = slider.value; };
+          slider.onchange = async () => {
+            await fetch('/set_control', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, value: slider.value})});
+          };
+          div.appendChild(slider);
+          div.appendChild(valSpan);
+
+          // up/down buttons
+          const up = document.createElement('button');
+          up.textContent = '+';
+          up.onclick = async () => {
+            let v = Math.min(parseInt(slider.value) + parseInt(slider.step || 1), parseInt(slider.max));
+            slider.value = v; valSpan.textContent = v;
+            await fetch('/set_control', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, value: v})});
+          };
+          const down = document.createElement('button');
+          down.textContent = '-';
+          down.onclick = async () => {
+            let v = Math.max(parseInt(slider.value) - parseInt(slider.step || 1), parseInt(slider.min));
+            slider.value = v; valSpan.textContent = v;
+            await fetch('/set_control', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, value: v})});
+          };
+          div.appendChild(up);
+          div.appendChild(down);
+
+        } else if (info.type === 'bool') {
+          const chk = document.createElement('input');
+          chk.type = 'checkbox';
+          chk.checked = info.value == 1;
+          chk.onchange = async () => {
+            await fetch('/set_control', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, value: chk.checked?1:0})});
+          };
+          div.appendChild(chk);
+        } else {
+          const txt = document.createElement('input');
+          txt.type = 'text';
+          txt.value = info.value || '';
+          txt.onchange = async () => {
+            await fetch('/set_control', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, value: txt.value})});
+          };
+          div.appendChild(txt);
+        }
+        container.appendChild(div);
+      }
+    }
+
+    // initial load and periodic refresh of control list (in case driver changes)
+    loadControls();
+    setInterval(loadControls, 5000);
+  </script>
+</body>
+</html>

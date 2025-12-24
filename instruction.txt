@@ -1,0 +1,192 @@
+Use docker and execute inference.py inside the docker.
+
+Image recognition and box anotation, yolo.engine
+
+# 1. Start the saved container (using its name)
+sudo docker start yolo_inference_session_new
+
+# 2. Re-enter the container's shell to start working
+sudo docker exec -it yolo_inference_session_new /bin/bash
+
+
+Run code in activated docker container:
+root@e0c9025f4062:/ultralytics# 
+
+Run this line to run inference.py that allows using yolo 
+for object detecction TensorRT (yolo8n.engine)
+python /app/inference.py
+
+
+Run to execute video_inference.py that will convert video dogs.mp4 
+to video with bounding boxes and predictions
+
+sudo docker exec -it yolo_inference_session_new python /app/video_inference.py
+
+
+
+Yolo
+
+06 Dec 2025
+
+Run camera and adjust parameters:
+In activated virtual env run:
+cd ~
+cd yolo_app/
+source yolo-app/bin/activate
+python web_control_stream.py 
+
+***********************************************
+Convert model:
+In runing container using Terminal run this conmands:
+
+
+yolo export model= yolo11n-pose.pt format=engine  
+
+copy from thecontainer folder to external folder on the disk:
+Outside the docker in terminal:
+
+sudo docker cp 7650bb243b50:/ultralytics/yolo11n-pose.engine /home/maro/Yolo_Models_TensorRT/yolo11n-pose.engine
+  
+sudo docker cp 7650bb243b50:/ultralytics/yolo11n-pose.onnx /home/maro/Yolo_Models_TensorRT/yolo11n-pose.onnx
+
+sudo docker cp 7650bb243b50:/ultralytics/yolo11n-pose.pt /home/maro/Yolo_Models_TensorRT/yolo11n-pose.pt
+
+***********************************************
+Docker:
+
+List of the docker containers:
+sudo docker ps -a
+
+I used Dockerfile that is located in the project:
+(Dockerfile
+FROM ultralytics/ultralytics:latest-jetson-jetpack6
+RUN python -m pip install --no-cache-dir flask
+EXPOSE 5001
+)
+
+When you run command this comant it build image with parameters given to the Dockerfile:
+cd /home/maro/yolo_app
+docker build -t yolo_web:latest .
+
+Then you can call this docker with pre installed libraries that you need
+
+
+
+Run:
+
+Object Detection - Image
+
+Object Detection - Video
+
+Object Detection - Camera
+
+cd ~
+cd yolo_app/
+
+
+
+
+
+Segmentation - Image
+Segmentation - Video
+Segmentation - Camera
+
+
+************************************************
+
+Direct
+
+Run:
+
+Object Detection - Image
+
+Object Detection - Video
+*************************************************
+Object Detection - Camera
+Use saved docker image with installed Flask
+
+
+cd ~
+cd yolo_app/
+
+sudo docker run -it --rm \
+  --runtime nvidia --gpus all --ipc=host --privileged \
+  --device /dev/video0:/dev/video0 --group-add video \
+  -v /home/maro/yolo_app:/app \
+  -v /home/maro/yolo_app/output:/results \
+  -p 5001:5001 \
+  --name yolo_web \
+  yolo_web:latest bash
+
+Run inside the container:
+
+
+python /app/web_stream2.py
+python /app/web_stream_v3.py
+python /app/web_stream_v4.py
+
+Save cup if reconized
+python /app/web_stream_v5.py
+
+*************************************************
+*************************************************
+
+
+Segmentation - Image
+Segmentation - Video
+
+*************************************************
+Segmentation - Camera
+
+
+cd ~
+cd yolo_app/
+
+sudo docker run -it --rm \
+  --runtime nvidia --gpus all --ipc=host --privileged \
+  --device /dev/video0:/dev/video0 --group-add video \
+  -v /home/maro/yolo_app:/app \
+  -v /home/maro/yolo_app/output:/results \
+  -p 5001:5001 \
+  -e MODEL_PATH=/app/yolo11n-seg.engine \
+  --name yolo_web \
+  yolo_web:latest bash
+
+  
+Then in container: 
+
+     python /app/web_stream_segment.py
+
+
+
+*************************************
+*************************************
+
+Pose estimation
+
+
+
+cd ~
+cd yolo_app/
+
+sudo docker run -it --rm \
+  --runtime nvidia --gpus all --ipc=host --privileged \
+  --device /dev/video0:/dev/video0 --group-add video \
+  -v /home/maro/yolo_app:/app \
+  -v /home/maro/yolo_app/output:/results \
+  -p 5001:5001 \
+  -e MODEL_PATH=/app/yolo11n-pose.engine \
+  --name yolo_pose \
+  yolo_web:latest bash
+
+
+Run inside the docker:
+
+export CAMERA_SOURCE=0
+python /app/web_stream_pose.py
+
+*******************************************************************
+Developing
+Open Terminal
+
+code
