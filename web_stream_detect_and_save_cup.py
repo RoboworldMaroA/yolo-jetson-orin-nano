@@ -1,8 +1,11 @@
 # Author: Marek Augustyn
-# 5 Dec 2025
+# 20 Feb 2026
 # Program allow recognize object using yolo pretrained model and stream video with detections over web server
 # It save detected cups as images
 # It use a yolo docker container with mounted webcam and output folder for detected cups
+# Check instruction.txt for how to run the program with docker
+# This code is base on web_stream_v5.py 
+# http://192.168.0.12:5001/
 
 from ultralytics import YOLO
 from flask import Flask, Response, render_template_string
@@ -11,7 +14,10 @@ import cv2
 import time
 import threading
 
+
 MODEL_PATH = os.environ.get("MODEL_PATH", "/app/yolov8n.engine")
+MODEL_PATH_SEGMENT = os.environ.get("MODEL_PATH", "/app/yolo11n-seg.engine")
+MODEL_PATH_POSE = os.environ.get("MODEL_PATH", "/app/yolo11n-pose.engine")
 CAMERA_SOURCE = int(os.environ.get("CAMERA_SOURCE", "0"))
 FPS_LIMIT = float(os.environ.get("FPS_LIMIT", "30.0"))  # optional throttle
 
@@ -19,13 +25,13 @@ app = Flask(__name__)
 
 # load model once
 model = YOLO(MODEL_PATH)
+# model = YOLO(MODEL_PATH_SEGMENT)
+#model = YOLO(MODEL_PATH_POSE)
 
 INDEX_HTML = """
 <!doctype html>
 <title>YOLO Camera Stream</title>
-<h1>YOLO Camera Stream</h1>
-<img src="{{ url_for('video_feed') }}" width="1024" />
-<p>Press Ctrl+C in container to stop server.</p>
+<img src="{{ url_for('video_feed') }}" width="640px" />
 """
 
 # Shared state between producer and clients
@@ -33,7 +39,6 @@ latest_frame = None
 frame_lock = threading.Lock()
 stop_event = threading.Event()
 
-# ...existing code...
 # add FPS state variables
 fps_smoothed = 0.0
 last_frame_time = None

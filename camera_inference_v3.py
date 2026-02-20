@@ -1,4 +1,4 @@
-# ...existing code...
+
 from ultralytics import YOLO
 import cv2
 import os
@@ -54,4 +54,3 @@ finally:
     cv2.destroyAllWindows()
 
 print("Done.")
-# ...existing code...

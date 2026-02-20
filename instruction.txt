@@ -1,5 +1,10 @@
-Use docker and execute inference.py inside the docker.
+This project is runing on Jetson Orin Nao 8gb memory.
+Developing using remote ssh, on Visual Studio Code
 
+
+
+Use docker and execute inference.py inside the docker.
+#################################################################
 Image recognition and box anotation, yolo.engine
 
 # 1. Start the saved container (using its name)
@@ -24,8 +29,8 @@ sudo docker exec -it yolo_inference_session_new python /app/video_inference.py
 
 
 
-Yolo
 
+#######  WEB STREAM AND ADJUST CAMERA PARAMETERS. #######
 06 Dec 2025
 
 Run camera and adjust parameters:
@@ -35,8 +40,15 @@ cd yolo_app/
 source yolo-app/bin/activate
 python web_control_stream.py 
 
+
+
+
+########################
+#######. YOLO #########
+########################
+
 ***********************************************
-Convert model:
+************.   Convert model:    *************
 In runing container using Terminal run this conmands:
 
 
@@ -51,10 +63,12 @@ sudo docker cp 7650bb243b50:/ultralytics/yolo11n-pose.onnx /home/maro/Yolo_Model
 
 sudo docker cp 7650bb243b50:/ultralytics/yolo11n-pose.pt /home/maro/Yolo_Models_TensorRT/yolo11n-pose.pt
 
+############################################################################################################
 ***********************************************
-Docker:
+************    DOCKER   **********************
 
-List of the docker containers:
+** List of the docker containers: **
+
 sudo docker ps -a
 
 I used Dockerfile that is located in the project:
@@ -64,7 +78,7 @@ RUN python -m pip install --no-cache-dir flask
 EXPOSE 5001
 )
 
-When you run command this comant it build image with parameters given to the Dockerfile:
+When you run command this commant then it wiil build image with parameters given to the Dockerfile:
 cd /home/maro/yolo_app
 docker build -t yolo_web:latest .
 
@@ -72,37 +86,27 @@ Then you can call this docker with pre installed libraries that you need
 
 
 
-Run:
 
-Object Detection - Image
+Yolo NO Docker Not Implemented, error with instalation, working only with CPU but is slow
+Decited to do usind contanters
 
+Object Detection - Image 
 Object Detection - Video
-
 Object Detection - Camera
+ Not implemented
+
+
+######################################################
+######### Project locationon Jetson ##################
 
 cd ~
 cd yolo_app/
 
 
 
-
-
-Segmentation - Image
-Segmentation - Video
-Segmentation - Camera
-
-
-************************************************
-
-Direct
-
-Run:
-
-Object Detection - Image
-
-Object Detection - Video
-*************************************************
-Object Detection - Camera
+#######################################################
+*******************************************************
+Object Detection (DOCKER)- Camera
 Use saved docker image with installed Flask
 
 
@@ -125,8 +129,15 @@ python /app/web_stream2.py
 python /app/web_stream_v3.py
 python /app/web_stream_v4.py
 
+Dec 2025 
 Save cup if reconized
 python /app/web_stream_v5.py
+
+06 Feb 2026
+
+python /app/web_stream_detect_and_save_cup.py
+http://192.168.0.12:5001/
+
 
 *************************************************
 *************************************************
@@ -187,6 +198,41 @@ python /app/web_stream_pose.py
 
 *******************************************************************
 Developing
+ON JESTON
 Open Terminal
-
 code
+Open project:
+yolo_app
+
+
+On Mac
+
+Open ssh conection:
+
+Run in terminal above code
+
+
+24 Dec 2025
+
+In activated virtual env run:
+cd ~
+cd yolo_app/
+source yolo-app/bin/activate
+
+
+python web_control_stream.py 
+
+New Version 
+
+python ./web_control_object_detection.py 
+
+
+
+
+
+
+
+Shoud down PC
+
+sudo reboot
+sudo shutdown -h now

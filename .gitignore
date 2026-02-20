@@ -48,3 +48,6 @@ yolo-app
 
 saved_video/*
 dogs.mp4
+
+output/video_output/*
+output/video_output
