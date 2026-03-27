@@ -33,7 +33,7 @@ if mountpoint -q "$USB_MOUNT"; then
 
     echo "📂 [3/3] Synchronizuję DANE i MODELE na USB (rsync)..."
     mkdir -p "$USB_DATA"
-    rsync -avz --progress "$PROJECT_DIR" "$USB_DATA"
+rsync -rtvz --progress --exclude='__pycache__/' --exclude='yolo-app/' --exclude='parkingVenv/' --exclude='*.pyc' "$PROJECT_DIR" "$USB_DATA"
     
     echo "-----------------------------------"
     echo "✅ PEŁNY BACKUP ZAKOŃCZONY (GitHub + USB)."
