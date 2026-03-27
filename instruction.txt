@@ -238,6 +238,7 @@ sudo docker run -it --rm \
 In activated image:
 
 python /app/web_lazy.py
+python /app/web_lazy_v2.py
 http://192.168.0.12:5004/
 
 
