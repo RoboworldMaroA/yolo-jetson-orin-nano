@@ -51,3 +51,43 @@ dogs.mp4
 
 output/video_output/*
 output/video_output
+
+
+# --- Systemowe i IDE ---
+.idea/
+.vscode/
+.DS_Store
+*.swp
+
+# --- Środowisko Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+parkingVenv/
+.env
+
+# --- Dane i Modele (Te idą na USB przez rsync, nie na GitHub) ---
+*.pt
+*.onnx
+*.engine
+weights/
+
+# --- Multimedia i Wyniki ---
+*.mp4
+*.webm
+*.jpg
+*.jpeg
+*.png
+# Wyklucz całe foldery z multimediami:
+directoryWithVideos/
+directoryWithConvertedVideo/
+photos/
+smallphotos/
+saved_video/
+output/
+EasyOCR/
+
+# --- Logi i Cache ---
+*.log
+.cache/
