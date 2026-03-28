@@ -284,6 +284,9 @@ Push changes and save data to external ssd changes made in the project yolo_app 
 
 ./git_backup.sh
 
+Jak wyskoczy error z dyskiem oznacza to ze musisz go zamontowac:
+
+
 
 
 Shoud down PC
