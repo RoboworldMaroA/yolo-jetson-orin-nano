@@ -220,8 +220,8 @@ python /app/web_stream_detect_and_save_cup_pose_port_5002.py
 
 
 
-WEB LAZY 21 Feb 2026
-
+WEB LAZY 21 Feb 2026 
+App that allows switch between model in the web broswer
 
 cd ~
 cd yolo_app/
@@ -238,6 +238,8 @@ sudo docker run -it --rm \
 In activated image:
 
 python /app/web_lazy.py
+
+March 2026
 python /app/web_lazy_v2.py
 http://192.168.0.12:5004/
 
@@ -262,7 +264,7 @@ Open ssh conection:
 Run in terminal above code
 
 
-24 Dec 2025
+24 Dec 2025 
 
 In activated virtual env run:
 cd ~

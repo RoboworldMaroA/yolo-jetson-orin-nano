@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>YOLO Object Detect, Pose, Segmentation</title>
+    <style>
+        button {
+            margin: 6px;
+            padding: 8px 14px;
+        }
+
+        #status {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Object Detection, Pose Estimation and Segmentation - Yolo 11 (Jetson Orin Nano)</h2>
+    <div>
+        <button id="btn-detect">Object Detection</button>
+        <button id="btn-pose">Pose Estimation</button>
+        <button id="btn-segmentation">Segmentation</button>
+        <span id="status">Loading...</span>
+    </div>
+    <div style="margin-top:10px">
+        <img id="stream" src="/video_feed" width="800" />
+    </div>
+
+    <script>
+        const btnDetect = document.getElementById('btn-detect');
+        const btnPose = document.getElementById('btn-pose');
+        const btnSegmentation = document.getElementById('btn-segmentation');
+        const statusEl = document.getElementById('status');
+
+        async function switchModel(name) {
+            disableButtons(true);
+            statusEl.textContent = 'Switching...';
+            try {
+                await fetch('/switch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: name })
+                });
+            } catch (e) {
+                console.error(e);
+            }
+            // poll status until loaded
+            pollStatus();
+        }
+
+        btnDetect.onclick = () => switchModel('detection');
+        btnPose.onclick = () => switchModel('pose');
+        btnSegmentation.onclick = () => switchModel('segmentation');
+
+        function disableButtons(v) {
+            btnDetect.disabled = v;
+            btnPose.disabled = v;
+            btnSegmentation.disabled = v;
+        }
+
+        async function pollStatus() {
+            try {
+                const r = await fetch('/status');
+                const j = await r.json();
+                const active = j.active;
+                const loaded = j.loaded || {};
+                const fps = j.fps ? j.fps.toFixed(1) : '0.0';
+                statusEl.textContent = `Active: ${active} | FPS: ${fps}`;
+                btnDetect.disabled = (active === 'detection');
+                btnPose.disabled = (active === 'pose');
+                btnSegmentation.disabled = (active === 'segmentation');
+
+                // if active model not yet loaded show loading and keep polling
+                if (!loaded[active]) {
+                    statusEl.textContent = `Loading ${active}...`;
+                    disableButtons(true);
+                    setTimeout(pollStatus, 1000);
+                } else {
+                    disableButtons(false);
+                }
+            } catch (e) {
+                console.error('status error', e);
+                setTimeout(pollStatus, 2000);
+            }
+        }
+
+        // start polling
+        pollStatus();
+    </script>
+</body>
+
+</html>

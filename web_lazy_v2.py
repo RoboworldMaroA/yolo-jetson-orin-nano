@@ -20,6 +20,7 @@ import os
 # Configuration
 MODEL_PATH_DETECT = os.environ.get("MODEL_PATH_DETECT", "/app/yolov8n.engine")
 MODEL_PATH_POSE = os.environ.get("MODEL_PATH_POSE", "/app/yolo11n-pose.engine")
+MODEL_PATH_SEGMENTATION = os.environ.get("MODEL_PATH_SEGMENTATION", "/app/yolo11n-seg.engine")
 CAMERA_SOURCE = int(os.environ.get("CAMERA_SOURCE", "0"))
 FPS_LIMIT = float(os.environ.get("FPS_LIMIT", "20.0"))
 
@@ -107,7 +108,9 @@ class ModelManager:
             }
 
 # create manager with two models
-manager = ModelManager({"detection": MODEL_PATH_DETECT, "pose": MODEL_PATH_POSE}, default="detection")
+#manager = ModelManager({"detection": MODEL_PATH_DETECT, "pose": MODEL_PATH_POSE}, default="detection")
+# create manager with two models and segmentation model
+manager = ModelManager({"detection": MODEL_PATH_DETECT, "pose": MODEL_PATH_POSE, "segmentation": MODEL_PATH_SEGMENTATION}, default="detection")
 # kick off load for default model in background
 manager.ensure_loaded(manager.active)
 
@@ -216,7 +219,7 @@ def mjpeg_generator():
 
 @app.route('/')
 def index():
-    return render_template('index_lazy.html')
+    return render_template('index_lazy_v2.html')
 
 
 @app.route('/video_feed')
@@ -228,7 +231,7 @@ def video_feed():
 def switch_model():
     data = request.json or request.form
     name = data.get('model') if isinstance(data, dict) else None
-    if name not in ("detection", "pose"):
+    if name not in ("detection", "pose", "segmentation"):
         return jsonify({"error": "invalid model"}), 400
     try:
         manager.switch(name)
