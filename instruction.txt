@@ -279,8 +279,10 @@ New Version
 python ./web_control_object_detection.py 
 
 
+27 March 2026
+Push changes and save data to external ssd changes made in the project yolo_app use git push or script:
 
-
+./git_backup.sh
 
 
 
