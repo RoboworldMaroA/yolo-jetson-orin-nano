@@ -220,7 +220,7 @@ python /app/web_stream_detect_and_save_cup_pose_port_5002.py
 
 
 
-WEB LAZY 21 Feb 2026 
+WEB LAZY 21 Feb 2026 -29 Mar 2026
 App that allows switch between model in the web broswer
 
 cd ~

@@ -3,8 +3,8 @@
 # 29 March 2026
 # Program allow recognize object using yolo pretrained model and stream video with detections over web server
 # It save detected cups as images
-# You can swith from the web browser between models like Pose Estimation and Object Detection
-# Added segmentation and also it is copatible with roboworld.react in tab yoloJetson (check instruction.txt for details , porfolio website)
+# You can swith from the web browser between models like Pose Estimation and Object Detection and segmentation
+# Working on add a custom model (STart Stop Sign detection)
 # It use a yolo docker container with mounted webcam and output folder for detected cups
 # Check instruction.txt for how to run the program with docker
 # Run:
@@ -21,6 +21,7 @@ import os
 MODEL_PATH_DETECT = os.environ.get("MODEL_PATH_DETECT", "/app/yolov8n.engine")
 MODEL_PATH_POSE = os.environ.get("MODEL_PATH_POSE", "/app/yolo11n-pose.engine")
 MODEL_PATH_SEGMENTATION = os.environ.get("MODEL_PATH_SEGMENTATION", "/app/yolo11n-seg.engine")
+MODEL_PATH_CUSTOM_MODEL = os.environ.get("MODEL_PATH_CUSTOM_MODEL", "/app/start_stop_yolo8.engine")  # replace with actual custom model path
 CAMERA_SOURCE = int(os.environ.get("CAMERA_SOURCE", "0"))
 FPS_LIMIT = float(os.environ.get("FPS_LIMIT", "20.0"))
 
@@ -109,8 +110,8 @@ class ModelManager:
 
 # create manager with two models
 #manager = ModelManager({"detection": MODEL_PATH_DETECT, "pose": MODEL_PATH_POSE}, default="detection")
-# create manager with two models and segmentation model
-manager = ModelManager({"detection": MODEL_PATH_DETECT, "pose": MODEL_PATH_POSE, "segmentation": MODEL_PATH_SEGMENTATION}, default="detection")
+# create manager with two models, segmentation model and custom model
+manager = ModelManager({"detection": MODEL_PATH_DETECT, "pose": MODEL_PATH_POSE, "segmentation": MODEL_PATH_SEGMENTATION, "custom-model": MODEL_PATH_CUSTOM_MODEL}, default="detection")
 # kick off load for default model in background
 manager.ensure_loaded(manager.active)
 
@@ -216,10 +217,10 @@ def mjpeg_generator():
     except GeneratorExit:
         return
 
-
+# Use index_lazy_v3.html for the web interface, which includes buttons for switching between detection, pose estimation, segmentation and custom model. The producer thread captures video frames, runs inference with the active model, annotates the frames, and saves detected cups as images. The MJPEG generator streams the annotated video to the web interface.
 @app.route('/')
 def index():
-    return render_template('index_lazy_v2.html')
+    return render_template('index_lazy_v3.html')
 
 
 @app.route('/video_feed')
@@ -231,7 +232,7 @@ def video_feed():
 def switch_model():
     data = request.json or request.form
     name = data.get('model') if isinstance(data, dict) else None
-    if name not in ("detection", "pose", "segmentation"):
+    if name not in ("detection", "pose", "segmentation", "custom-model"):
         return jsonify({"error": "invalid model"}), 400
     try:
         manager.switch(name)
