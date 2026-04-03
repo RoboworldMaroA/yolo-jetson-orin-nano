@@ -1,10 +1,11 @@
 
 # Author: Marek Augustyn
-# 29 March 2026
+# 03 April 2026
+# Working on add a OCR custom model Plate Recognition
 # Program allow recognize object using yolo pretrained model and stream video with detections over web server
 # It save detected cups as images
-# You can swith from the web browser between models like Pose Estimation and Object Detection and segmentation
-# Implemented a custom model (STart Stop Sign detection) It is working with .pt and .engine models
+# You can swith from the web browser between models like Pose Estimation and Object Detection, Segmentation, Custom MOdel Start Stop and Plate Recognition
+# If cub is reconize with 60% confidence or higher, it save the frame with detected cup in the /app folder with name detected_cup_TIMESTAMP.jpg
 # It use a yolo docker container with mounted webcam and output folder for detected cups
 # Check instruction.txt for how to run the program with docker
 # Run:
@@ -21,7 +22,8 @@ import os
 MODEL_PATH_DETECT = os.environ.get("MODEL_PATH_DETECT", "/app/yolov8n.engine")
 MODEL_PATH_POSE = os.environ.get("MODEL_PATH_POSE", "/app/yolo11n-pose.engine")
 MODEL_PATH_SEGMENTATION = os.environ.get("MODEL_PATH_SEGMENTATION", "/app/yolo11n-seg.engine")
-MODEL_PATH_CUSTOM_MODEL = os.environ.get("MODEL_PATH_CUSTOM_MODEL", "/app/start_stop_yolo8.engine")  # replace with actual custom model path
+MODEL_PATH_CUSTOM_MODEL = os.environ.get("MODEL_PATH_CUSTOM_MODEL", "/app/start_stop_yolo8.engine")
+MODEL_PATH_PLATE_RECOGNITION = os.environ.get("MODEL_PATH_PLATE_RECOGNITION", "/app/licence_plate.pt")  # replace with actual plate recognition model path
 CAMERA_SOURCE = int(os.environ.get("CAMERA_SOURCE", "0"))
 FPS_LIMIT = float(os.environ.get("FPS_LIMIT", "20.0"))
 
@@ -111,7 +113,7 @@ class ModelManager:
 # create manager with two models
 #manager = ModelManager({"detection": MODEL_PATH_DETECT, "pose": MODEL_PATH_POSE}, default="detection")
 # create manager with two models, segmentation model and custom model
-manager = ModelManager({"detection": MODEL_PATH_DETECT, "pose": MODEL_PATH_POSE, "segmentation": MODEL_PATH_SEGMENTATION, "custom-model": MODEL_PATH_CUSTOM_MODEL}, default="detection")
+manager = ModelManager({"detection": MODEL_PATH_DETECT, "pose": MODEL_PATH_POSE, "segmentation": MODEL_PATH_SEGMENTATION, "custom-model": MODEL_PATH_CUSTOM_MODEL, "plate-recognition": MODEL_PATH_PLATE_RECOGNITION}, default="detection")
 # kick off load for default model in background
 manager.ensure_loaded(manager.active)
 
@@ -172,7 +174,7 @@ def producer():
         except Exception as e:
             # keep running producer even if model inference fails
             errtxt = f"Model error: {e}"
-            cv2.putText(annotated, errtxt, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+            cv2.putText(annotated, errtxt, (20, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
 
         # compute FPS
         now = time.time()
@@ -184,8 +186,8 @@ def producer():
 
         fps_text = f"FPS: {fps_smoothed:.1f} | Active: {manager.active}"
         (tw, th), _ = cv2.getTextSize(fps_text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
-        cv2.rectangle(annotated, (8, 8), (12 + tw, 14 + th), (0, 0, 0), -1)
-        cv2.putText(annotated, fps_text, (10, 12 + th), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.rectangle(annotated, (8, 8+35), (12 + tw, 14 + th +35), (0, 0, 0), -1)
+        cv2.putText(annotated, fps_text, (10, 12 + th + 35), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2, cv2.LINE_AA)
 
         ret2, buf = cv2.imencode('.jpg', annotated)
         if not ret2:
@@ -220,7 +222,7 @@ def mjpeg_generator():
 # Use index_lazy_v3.html for the web interface, which includes buttons for switching between detection, pose estimation, segmentation and custom model. The producer thread captures video frames, runs inference with the active model, annotates the frames, and saves detected cups as images. The MJPEG generator streams the annotated video to the web interface.
 @app.route('/')
 def index():
-    return render_template('index_lazy_v3.html')
+    return render_template('index_lazy_v4.html')
 
 
 @app.route('/video_feed')
@@ -232,7 +234,7 @@ def video_feed():
 def switch_model():
     data = request.json or request.form
     name = data.get('model') if isinstance(data, dict) else None
-    if name not in ("detection", "pose", "segmentation", "custom-model"):
+    if name not in ("detection", "pose", "segmentation", "custom-model", "plate-recognition"):
         return jsonify({"error": "invalid model"}), 400
     try:
         manager.switch(name)

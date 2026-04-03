@@ -218,7 +218,9 @@ Run inside the docker:
 export CAMERA_SOURCE=0
 python /app/web_stream_detect_and_save_cup_pose_port_5002.py
 
-
+#########################################################
+#########################################################
+**************** IMPORTANT PROJECT **********************
 
 WEB LAZY 21 Feb 2026 -29 Mar 2026
 App that allows switch between model in the web broswer
@@ -239,12 +241,27 @@ In activated image:
 
 python /app/web_lazy.py
 
-March 2026
+28 March 2026
 python /app/web_lazy_v2.py
+29 Mar 2028
+Object Detection, Pose Estimation, Segmentation and Custom (Sart Stop)
+python /app/web_lazy_v3.py
+
+Working on model for Plate recognition
+
+This version allows to switch between models
+Object Detection, Pose Estimation, Segmentation and Custom (Sart Stop), Licence Plate
+If cup is recognized with > 60% confidentiality then save an image on drive
+
+python /app/web_lazy_v4.py
 http://192.168.0.12:5004/
 
 
+03 April 2026
+Add easy ocr
+python /app/web_lazy_v5.py
 
+http://192.168.0.12:5004/
 
 
 
