@@ -122,6 +122,8 @@ python /app/recognize_Irish_Plates_Video_v6_flask.py
 python /app/web_lazy_v5_easyOCR.py
 
 10 April 2026
+It allows recognize cars using camera ans save to the csv and also saved cropped licence to the folder
+
 python /app/web_lazy_v5_easyOCR_v2.py
 http://192.168.0.12:5010/
 
@@ -163,11 +165,20 @@ Object Detection - Camera
  Not implemented
 
 
+
+
+
+
 ######################################################
 ######### Project locationon Jetson ##################
 
 cd ~
 cd yolo_app/
+
+
+
+
+
 
 
 
@@ -206,12 +217,23 @@ python /app/web_stream_detect_and_save_cup.py
 http://192.168.0.12:5001/
 
 
+
+
+
+
+
 *************************************************
 *************************************************
 
 
 Segmentation - Image
 Segmentation - Video
+
+
+
+
+
+
 
 *************************************************
 Segmentation - Camera
@@ -234,6 +256,11 @@ sudo docker run -it --rm \
 Then in container: 
 
      python /app/web_stream_segment.py
+
+
+
+
+
 
 
 
@@ -284,6 +311,10 @@ Run inside the docker:
 
 export CAMERA_SOURCE=0
 python /app/web_stream_detect_and_save_cup_pose_port_5002.py
+
+
+
+
 
 
 
@@ -338,6 +369,8 @@ http://192.168.0.12:5004/
 
 
 
+
+
 *******************************************************************
 Developing
 ON JESTON
@@ -384,9 +417,15 @@ Push changes and save data to external ssd changes made in the project yolo_app 
 Jak wyskoczy error z dyskiem oznacza to ze musisz go zamontowac:
 
 Podpiecie dysku wymus polaczenie: 
+  sudo mount.exfat-fuse /dev/sda2 /media/marek/dysk_usb -o nonempty,umask=000
 
 
-Shoud down PC
+
+
+
+###########################
+##### Shoud down PC  ######
+###########################
 
 sudo reboot
 sudo shutdown -h now

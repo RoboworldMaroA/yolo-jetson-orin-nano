@@ -1,6 +1,6 @@
 
 # Author: Marek Augustyn
-# 03 April 2026
+# 10 April 2026
 # EasyOCR custom model recognition irisg plates with YOLOv8n trained on Irish plates. It is based on the previous version of the program, but it adds a new model for plate recognition and uses EasyOCR to read the text from the detected plates. The program processes video frames, detects cars, detects plates within those cars, and then applies OCR to recognize the plate text. Recognized plates are saved as cropped images and logged in a CSV file.
 # Program allow recognize object using yolo pretrained model and stream video with detections over web server
 # It save detected cups as images
@@ -33,7 +33,9 @@ MODEL_PATH_DETECT = os.environ.get("MODEL_PATH_DETECT", "/app/yolov8n.engine")
 MODEL_PATH_POSE = os.environ.get("MODEL_PATH_POSE", "/app/yolo11n-pose.engine")
 MODEL_PATH_SEGMENTATION = os.environ.get("MODEL_PATH_SEGMENTATION", "/app/yolo11n-seg.engine")
 MODEL_PATH_CUSTOM_MODEL = os.environ.get("MODEL_PATH_CUSTOM_MODEL", "/app/start_stop_yolo8.engine")
-MODEL_PATH_PLATE_RECOGNITION = os.environ.get("MODEL_PATH_PLATE_RECOGNITION", "/app/licence_plate.pt")  # replace with actual plate recognition model path
+# MODEL_PATH_PLATE_RECOGNITION = os.environ.get("MODEL_PATH_PLATE_RECOGNITION", "/app/licence_plate.pt")  # replace with actual plate recognition model path
+MODEL_PATH_PLATE_RECOGNITION = os.environ.get("MODEL_PATH_PLATE_RECOGNITION", "/app/licence_plate.engine")  # replace with actual plate recognition model path
+
 CAMERA_SOURCE = int(os.environ.get("CAMERA_SOURCE", "0"))
 FPS_LIMIT = float(os.environ.get("FPS_LIMIT", "20.0"))
 
@@ -48,11 +50,13 @@ device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
 
 # Load the YOLO models
 model_path = "Yolo_Models/yolov8m.pt"
+#model_path = "/app/yolov8n.engine"
 # model_path = "Yolo_Models/yolo11n.pt"
 # model_registation_plate_path = "Model_recognize_licence_plates/runs/detect/train14/weights/best.pt"
-model_registation_plate_path = "/app/licence_plate.pt"
+model_registation_plate_path = "/app/licence_plate.engine"
 
-model = YOLO(model_path)
+# model = YOLO(model_path)
+model = YOLO(MODEL_PATH_DETECT)
 model_registration_plate = YOLO(model_registation_plate_path)
 print("Model loaded successfully.")
 print("Model class names:", model.names)
@@ -225,7 +229,7 @@ def preprocess_image(image, frame_number=None, car_idx=None, plate_idx=None, pla
     )
 
     # SAVED_ONLY_RECOGNIZED_PLATES = os.path.join(".", "images_only_reconized_plates")
-    SAVED_ONLY_RECOGNIZED_PLATES = os.path.join(".", "/app/images_only_reconized_plates")
+    SAVED_ONLY_RECOGNIZED_PLATES = os.path.join(".", "/app/images_only_recognized_plates")
     os.makedirs(SAVED_ONLY_RECOGNIZED_PLATES, exist_ok=True)
 
     if plate_text:
@@ -263,8 +267,8 @@ def process_cropped_licence_plate(cropped_img, index):
         print(f"Cropped image {index} is empty, skipping save.")
         return
 
-    os.makedirs("Croped_licence_plates", exist_ok=True)
-    cropped_image_path = f"/app/Croped_licence_plates/cropped_licence_plate_{index}.png"
+    os.makedirs("/app/Cropped_licence_plates", exist_ok=True)
+    cropped_image_path = f"/app/Cropped_licence_plates/cropped_licence_plate_{index}.png"
     cv2.imwrite(cropped_image_path, cropped_img)
     print(f"Cropped licence plate image saved to {cropped_image_path}")
 
@@ -272,7 +276,11 @@ def process_cropped_licence_plate(cropped_img, index):
     # cv2.waitKey(100)
     cv2.destroyAllWindows()
 
-
+#It is main function that is trigered when the "irish-plate-recognition" model is active.
+#It processes each video frame, detects cars, detects plates within those cars, 
+#and applies OCR to recognize the plate text. 
+#Recognized plates are saved as cropped images and logged in a CSV file. 
+#The function also annotates the video frame with detected cars and recognized plate text.
 def process_frame(frame, frame_number):
     results = model(frame)
     if not results:
@@ -370,19 +378,19 @@ def process_frame(frame, frame_number):
     return frame
 
 #This function I have to processing on URL http://
-def generate_frames():
-    cap = cv2.VideoCapture(0)  # 0 dla domyślnej kamery; zmień na ścieżkę do kamery jeśli potrzeba
-    frame_number = 0
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        processed_frame = process_frame(frame, frame_number)
-        ret, buffer = cv2.imencode('.jpg', processed_frame)
-        frame = buffer.tobytes()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-        frame_number += 1
+# def generate_frames():
+#     cap = cv2.VideoCapture(0)  # 0 dla domyślnej kamery; zmień na ścieżkę do kamery jeśli potrzeba
+#     frame_number = 0
+#     while True:
+#         ret, frame = cap.read()
+#         if not ret:
+#             break
+#         processed_frame = process_frame(frame, frame_number)
+#         ret, buffer = cv2.imencode('.jpg', processed_frame)
+#         frame = buffer.tobytes()
+#         yield (b'--frame\r\n'
+#                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+#         frame_number += 1
 
 
 
