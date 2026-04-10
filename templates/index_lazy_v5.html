@@ -28,6 +28,7 @@
         <button id="btn-segmentation">Segmentation</button>
         <button id="btn-custom-model">Custom Model</button>
         <button id="btn-plate-recognition">Plate Recognition</button>
+        <button id="btn-irish-plate-recognition">Irish Plate Recognition</button>
         <span id="status">Loading...</span>
     </div>
     <div style="margin-top:15px">
@@ -40,6 +41,7 @@
         const btnSegmentation = document.getElementById('btn-segmentation');
         const btnCustomModel = document.getElementById('btn-custom-model');
         const btnPlateRecognition = document.getElementById('btn-plate-recognition');
+        const btnIrishPlateRecognition = document.getElementById('btn-irish-plate-recognition');
         const statusEl = document.getElementById('status');
 
         async function switchModel(name) {
@@ -63,6 +65,7 @@
         btnSegmentation.onclick = () => switchModel('segmentation');
         btnCustomModel.onclick = () => switchModel('custom-model');
         btnPlateRecognition.onclick = () => switchModel('plate-recognition');
+        btnIrishPlateRecognition.onclick = () => switchModel('irish-plate-recognition');
 
         function disableButtons(v) {
             btnDetect.disabled = v;
@@ -70,6 +73,7 @@
             btnSegmentation.disabled = v;
             btnCustomModel.disabled = v;
             btnPlateRecognition.disabled = v;
+            btnIrishPlateRecognition.disabled = v;
         }
 
         async function pollStatus() {
@@ -85,6 +89,7 @@
                 btnSegmentation.disabled = (active === 'segmentation');
                 btnCustomModel.disabled = (active === 'custom-model');
                 btnPlateRecognition.disabled = (active === 'plate-recognition');
+                btnIrishPlateRecognition.disabled = (active === 'irish-plate-recognition');
 
                 // if active model not yet loaded show loading and keep polling
                 if (!loaded[active]) {

@@ -1,3 +1,4 @@
 FROM ultralytics/ultralytics:latest-jetson-jetpack6
-RUN python -m pip install --no-cache-dir flask
-EXPOSE 5001
+COPY requirements.txt /app/
+RUN python -m pip install --no-cache-dir -r /app/requirements.txt
+EXPOSE 5010

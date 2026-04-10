@@ -3,6 +3,14 @@ Developing using remote ssh, on Visual Studio Code
 
 
 
+
+
+
+
+
+
+
+
 Use docker and execute inference.py inside the docker.
 #################################################################
 Image recognition and box anotation, yolo.engine
@@ -66,6 +74,65 @@ sudo docker cp 7650bb243b50:/ultralytics/yolo11n-pose.pt /home/maro/Yolo_Models_
 ############################################################################################################
 ***********************************************
 ************    DOCKER   **********************
+***********************************************
+
+NEW Docker File that use easyOCR
+
+
+Created file requirement.txt and added library that will be instaled together with the docker
+
+  flask
+  easyocr
+
+In Doclerfile add a line that allows to instal from this location:
+
+  FROM ultralytics/ultralytics:latest-jetson-jetpack6
+  COPY requirements.txt /app/
+  RUN python -m pip install --no-cache-dir -r /app/requirements.txt
+  EXPOSE 5010
+
+Now build new Image:
+docker build -t yolo_web_easyocr . 
+
+Check created Images: 
+  docker images
+
+See details of the image
+docker images yolo_web_easyocr
+
+
+Now Run the program using this command:
+cd ~
+cd yolo_app/
+
+sudo docker run -it --rm \
+  --runtime nvidia --gpus all --ipc=host --privileged \
+  --device /dev/video0:/dev/video0 --group-add video \
+  -v /home/maro/yolo_app:/app \
+  -v /home/maro/yolo_app/output:/results \
+  -p 5010:5010 \
+  --name yolo_web_easyocr \
+  yolo_web_easyocr:latest bash
+
+
+Then run program inside the activated docker container:
+
+python /app/recognize_Irish_Plates_Video_v6_flask.py
+
+python /app/web_lazy_v5_easyOCR.py
+
+10 April 2026
+python /app/web_lazy_v5_easyOCR_v2.py
+http://192.168.0.12:5010/
+
+
+
+
+
+
+
+
+######################################
 
 ** List of the docker containers: **
 
@@ -218,9 +285,15 @@ Run inside the docker:
 export CAMERA_SOURCE=0
 python /app/web_stream_detect_and_save_cup_pose_port_5002.py
 
+
+
+#########################################################
 #########################################################
 #########################################################
 **************** IMPORTANT PROJECT **********************
+#########################################################
+#########################################################
+
 
 WEB LAZY 21 Feb 2026 -29 Mar 2026
 App that allows switch between model in the web broswer
@@ -295,6 +368,13 @@ New Version
 
 python ./web_control_object_detection.py 
 
+
+
+
+
+############################################
+############. GITHUB and BACKUP.  ##########
+############################################
 
 27 March 2026
 Push changes and save data to external ssd changes made in the project yolo_app use git push or script:
