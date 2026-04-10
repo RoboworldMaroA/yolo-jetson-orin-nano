@@ -383,7 +383,7 @@ Push changes and save data to external ssd changes made in the project yolo_app 
 
 Jak wyskoczy error z dyskiem oznacza to ze musisz go zamontowac:
 
-
+Podpiecie dysku wymus polaczenie: 
 
 
 Shoud down PC
