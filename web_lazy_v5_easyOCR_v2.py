@@ -38,6 +38,7 @@ MODEL_PATH_PLATE_RECOGNITION = os.environ.get("MODEL_PATH_PLATE_RECOGNITION", "/
 
 CAMERA_SOURCE = int(os.environ.get("CAMERA_SOURCE", "0"))
 FPS_LIMIT = float(os.environ.get("FPS_LIMIT", "20.0"))
+IMG_SIZE = int(os.environ.get("IMG_SIZE", "640"))
 
 #Varsiable for Easy OCR
 recognized_plates_log = []  # Each entry: (frame_number, car_idx, plate_idx, plate_text)
@@ -274,7 +275,7 @@ def process_cropped_licence_plate(cropped_img, index):
 
     # cv2.imshow(f"Cropped Licence Plate {index}", cropped_img)
     # cv2.waitKey(100)
-    cv2.destroyAllWindows()
+    #cv2.destroyAllWindows()
 
 #It is main function that is trigered when the "irish-plate-recognition" model is active.
 #It processes each video frame, detects cars, detects plates within those cars, 
@@ -282,7 +283,7 @@ def process_cropped_licence_plate(cropped_img, index):
 #Recognized plates are saved as cropped images and logged in a CSV file. 
 #The function also annotates the video frame with detected cars and recognized plate text.
 def process_frame(frame, frame_number):
-    results = model(frame)
+    results = model(frame, imgsz=IMG_SIZE)
     if not results:
         return frame
 
@@ -312,7 +313,7 @@ def process_frame(frame, frame_number):
     unique_plates = set()
     for car_idx, x1, y1, x2, y2 in car_boxes:
         car_crop = frame[y1:y2, x1:x2]
-        licence_results = model_registration_plate(car_crop)
+        licence_results = model_registration_plate(car_crop, imgsz=IMG_SIZE)
 
         if not licence_results:
             continue
@@ -427,7 +428,7 @@ def producer():
                 annotated = process_frame(frame, frame_number)
             else:
                 # run inference on single-frame
-                results = model(frame)
+                results = model(frame, imgsz=IMG_SIZE)
                 r = results[0]
                 annotated = r.plot() if hasattr(r, "plot") else frame
 

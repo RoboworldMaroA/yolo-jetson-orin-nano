@@ -73,10 +73,11 @@ sudo docker cp 7650bb243b50:/ultralytics/yolo11n-pose.pt /home/maro/Yolo_Models_
 
 ############################################################################################################
 ***********************************************
-************    DOCKER   **********************
+************    DOCKER - easyOCR  **********************
 ***********************************************
 
 NEW Docker File that use easyOCR
+11 April 2026
 
 
 Created file requirement.txt and added library that will be instaled together with the docker
@@ -100,7 +101,7 @@ Check created Images:
 See details of the image
 docker images yolo_web_easyocr
 
-
+******.  RUNNING PROCESS. - easyOCR *******************
 Now Run the program using this command:
 cd ~
 cd yolo_app/
