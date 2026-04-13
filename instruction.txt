@@ -119,6 +119,10 @@ sudo docker run -it --rm \
 Then run program inside the activated docker container:
 
 python /app/recognize_Irish_Plates_Video_v6_flask.py
+06 April 2026
+This is only one model liecence ocr and window is too big Check a version Lazy_v5_easyOCR_v2
+python /app/recognize_Irish_Plates_v6_flask.py
+
 
 python /app/web_lazy_v5_easyOCR.py
 
@@ -126,6 +130,8 @@ python /app/web_lazy_v5_easyOCR.py
 It allows recognize cars using camera ans save to the csv and also saved cropped licence to the folder
 
 python /app/web_lazy_v5_easyOCR_v2.py
+
+
 http://192.168.0.12:5010/
 
 

@@ -10,25 +10,46 @@
         button {
             margin: 6px;
             padding: 8px 14px;
+            font-size: 0.8em;
+            border-radius: 5px;
         }
 
         #status {
             margin-left: 10px;
             font-weight: bold;
+            color: red
+        }
+
+        h2 {
+            font-size: 1.0em;
         }
     </style>
 </head>
 
 <body>
-    <h2>Object Detection, Pose Estimation, Segmentation, Custom model- Yolo 11 (Jetson Orin Nano)</h2>
-    <h2>Working on Easy OCR</h2>
+    <h2>Object Detection, Pose Estimation, Segmentation.</h2>
+    <h2>Custom model- Yolo 11 (Jetson Orin Nano)</h2>
+    <h2>Recognize Irish registration plates (easyOCR)</h2>
     <div>
         <button id="btn-detect">Object Detection</button>
         <button id="btn-pose">Pose Estimation</button>
         <button id="btn-segmentation">Segmentation</button>
+        <!-- <button id="btn-custom-model">Custom Model</button>
+        <button id="btn-plate-recognition">Plate Recognition</button>
+        <button id="btn-irish-plate-recognition">Irish Plate Recognition</button> -->
+        <!-- <span id="status">Loading...</span> -->
+    </div>
+
+    <div>
+        <!-- <button id="btn-detect">Object Detection</button>
+        <button id="btn-pose">Pose Estimation</button>
+        <button id="btn-segmentation">Segmentation</button> -->
         <button id="btn-custom-model">Custom Model</button>
         <button id="btn-plate-recognition">Plate Recognition</button>
         <button id="btn-irish-plate-recognition">Irish Plate Recognition</button>
+        <!-- <span id="status">Loading...</span> -->
+    </div>
+    <div>
         <span id="status">Loading...</span>
     </div>
     <div style="margin-top:15px">
