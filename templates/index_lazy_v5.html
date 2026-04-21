@@ -3,11 +3,27 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>YOLO Object Detect, Pose, Seg, Start Stop, Licences, Esy OCR
+    <title>Roboworld Jetson
 
     </title>
     <style>
+        body {
+            margin: 1rem;
+            /* display: flex; */
+            place-items: center;
+            background-color: #060606 !important;
+            /* min-width: 320px;
+  min-height: 100vh; */
+
+            font-family: "Rajdhani";
+            /* font-optical-sizing: auto; */
+            font-weight: 300;
+            font-style: normal;
+
+        }
+
         button {
+            align-items: center;
             margin: 6px;
             padding: 8px 14px;
             font-size: 0.8em;
@@ -17,11 +33,30 @@
         #status {
             margin-left: 10px;
             font-weight: bold;
-            color: red
+            color: red;
+            display: flex;
+            justify-content: center;
+
         }
 
         h2 {
+            text-align: center;
             font-size: 1.0em;
+        }
+
+        #first-row-buttons {
+            display: flex;
+            justify-content: center;
+        }
+
+        #second-row-buttons {
+            display: flex;
+            justify-content: center;
+        }
+
+        #stream-row {
+            display: flex;
+            justify-content: center;
         }
     </style>
 </head>
@@ -30,7 +65,7 @@
     <h2>Object Detection, Pose Estimation, Segmentation.</h2>
     <h2>Custom model- Yolo 11 (Jetson Orin Nano)</h2>
     <h2>Recognize Irish registration plates (easyOCR)</h2>
-    <div>
+    <div id="first-row-buttons">
         <button id="btn-detect">Object Detection</button>
         <button id="btn-pose">Pose Estimation</button>
         <button id="btn-segmentation">Segmentation</button>
@@ -40,7 +75,7 @@
         <!-- <span id="status">Loading...</span> -->
     </div>
 
-    <div>
+    <div id="second-row-buttons">
         <!-- <button id="btn-detect">Object Detection</button>
         <button id="btn-pose">Pose Estimation</button>
         <button id="btn-segmentation">Segmentation</button> -->
@@ -52,7 +87,7 @@
     <div>
         <span id="status">Loading...</span>
     </div>
-    <div style="margin-top:15px">
+    <div id="stream-row" style="margin-top:15px">
         <img id="stream" src="/video_feed" width="640px" />
     </div>
 

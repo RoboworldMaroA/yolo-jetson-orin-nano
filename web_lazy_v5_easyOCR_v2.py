@@ -50,9 +50,9 @@ print(f"Has MPS: {torch.backends.mps.is_built()}")
 device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
 
 # Load the YOLO models
-model_path = "Yolo_Models/yolov8m.pt"
+model_path = "/app/Yolo_Models/yolov8m.pt"
 #model_path = "/app/yolov8n.engine"
-# model_path = "Yolo_Models/yolo11n.pt"
+# model_path = "/app/Yolo_Models/yolo11n.pt"
 # model_registation_plate_path = "Model_recognize_licence_plates/runs/detect/train14/weights/best.pt"
 model_registation_plate_path = "/app/licence_plate.engine"
 

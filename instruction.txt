@@ -135,6 +135,13 @@ python /app/web_lazy_v5_easyOCR_v2.py
 http://192.168.0.12:5010/
 
 
+When connected on the Phone:
+http://127.0.0.1:5011/ ?????
+
+http://172.20.10.9:5010
+Running on http://127.0.0.1:5010
+Running on http://172.17.0.2:5010
+
 
 
 
