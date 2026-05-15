@@ -148,9 +148,17 @@ New GUI updates
 python /app/web_lazy_v5_easyOCR_v2.py
 
 
+15 May 2026
+Update 
+python /app/web_lazy_v6_new_model.py
+
+
+
 http://192.168.0.12:5010/
 
 
+##############################
+##############################
 When connected on the Phone:
 http://127.0.0.1:5011/ ?????
 
