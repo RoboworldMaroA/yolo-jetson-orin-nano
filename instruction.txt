@@ -76,8 +76,16 @@ sudo docker cp 7650bb243b50:/ultralytics/yolo11n-pose.pt /home/maro/Yolo_Models_
 ************    DOCKER - easyOCR  **********************
 ***********************************************
 
-NEW Docker File that use easyOCR
-11 April 2026
+
+#########################################################
+#########################################################
+#########################################################
+********** NEW Docker File that use easyOCR *************
+***************.    11 April 2026     *******************
+#########################################################
+#########################################################
+
+
 
 
 Created file requirement.txt and added library that will be instaled together with the docker
@@ -101,7 +109,11 @@ Check created Images:
 See details of the image
 docker images yolo_web_easyocr
 
+
+                        RUNNING
+#######################################################
 ******.  RUNNING PROCESS. - easyOCR *******************
+#######################################################
 Now Run the program using this command:
 cd ~
 cd yolo_app/
@@ -120,15 +132,19 @@ Then run program inside the activated docker container:
 
 python /app/recognize_Irish_Plates_Video_v6_flask.py
 06 April 2026
+
 This is only one model liecence ocr and window is too big Check a version Lazy_v5_easyOCR_v2
 python /app/recognize_Irish_Plates_v6_flask.py
 
 
 python /app/web_lazy_v5_easyOCR.py
 
+#############
 10 April 2026
 It allows recognize cars using camera ans save to the csv and also saved cropped licence to the folder
+#############
 
+New GUI updates
 python /app/web_lazy_v5_easyOCR_v2.py
 
 
@@ -335,7 +351,7 @@ python /app/web_stream_detect_and_save_cup_pose_port_5002.py
 #########################################################
 #########################################################
 #########################################################
-**************** IMPORTANT PROJECT **********************
+**************** IMPORTANT PROJECT old ******************
 #########################################################
 #########################################################
 
@@ -442,4 +458,5 @@ Podpiecie dysku wymus polaczenie:
 ###########################
 
 sudo reboot
+sync
 sudo shutdown -h now

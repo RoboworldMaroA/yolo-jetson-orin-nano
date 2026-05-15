@@ -1,7 +1,10 @@
 
 # Author: Marek Augustyn
 # 10 April 2026
-# EasyOCR custom model recognition irisg plates with YOLOv8n trained on Irish plates. It is based on the previous version of the program, but it adds a new model for plate recognition and uses EasyOCR to read the text from the detected plates. The program processes video frames, detects cars, detects plates within those cars, and then applies OCR to recognize the plate text. Recognized plates are saved as cropped images and logged in a CSV file.
+# EasyOCR custom model recognition irisg plates with YOLOv8n trained on Irish plates. 
+# It is based on the previous version of the program, but it adds a new model for plate recognition and uses EasyOCR to read the text from the detected plates.
+# The program processes video frames, detects cars, detects plates within those cars, and then applies OCR to recognize the plate text.
+# Recognized plates are saved as cropped images and logged in a CSV file.
 # Program allow recognize object using yolo pretrained model and stream video with detections over web server
 # It save detected cups as images
 # You can swith from the web browser between models like Pose Estimation and Object Detection, Segmentation, Custom MOdel Start Stop and Plate Recognition
@@ -44,21 +47,46 @@ IMG_SIZE = int(os.environ.get("IMG_SIZE", "640"))
 recognized_plates_log = []  # Each entry: (frame_number, car_idx, plate_idx, plate_text)
 
 # Check for MPS (Apple Metal Performance Shaders) device availability
-print(f"MPS built: {torch.backends.mps.is_built()}")
-print(f"MPS available: {torch.backends.mps.is_available()}")
-print(f"Has MPS: {torch.backends.mps.is_built()}")
+#print(f"MPS built: {torch.backends.mps.is_built()}")
+#print(f"MPS available: {torch.backends.mps.is_available()}")
+#print(f"Has MPS: {torch.backends.mps.is_built()}")
 device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
 
 # Load the YOLO models
-model_path = "/app/Yolo_Models/yolov8m.pt"
+##model_path = "/app/Yolo_Models/yolov8m.pt"
 #model_path = "/app/yolov8n.engine"
 # model_path = "/app/Yolo_Models/yolo11n.pt"
 # model_registation_plate_path = "Model_recognize_licence_plates/runs/detect/train14/weights/best.pt"
-model_registation_plate_path = "/app/licence_plate.engine"
+##model_registation_plate_path = "/app/licence_plate.engine"
 
 # model = YOLO(model_path)
 model = YOLO(MODEL_PATH_DETECT)
-model_registration_plate = YOLO(model_registation_plate_path)
+##model_registration_plate = YOLO(model_registation_plate_path)
+model_registration_plate = YOLO(MODEL_PATH_PLATE_RECOGNITION)
+#Check if model for segmentation is downloaded
+try:
+    model_segmentation = YOLO(MODEL_PATH_SEGMENTATION)
+    print("Model for segmentation loaded successfully.")
+    print("Model class names for segmentation:", model_segmentation.names)
+except:
+    print("Model for segmentation not found.")
+
+#Check if model for pose estimation is downloaded
+try:
+    model_pose = YOLO(MODEL_PATH_POSE)
+    print("Model for pose estimation loaded successfully.")
+    print("Model class names for pose estimation:", model_pose.names)
+except:
+    print("Model for pose estimation not found.")
+
+#Check if model for custom model is downloaded
+try:
+    model_custom = YOLO(MODEL_PATH_CUSTOM_MODEL)
+    print("Model for custom model loaded successfully.")
+    print("Model class names for custom model:", model_custom.names)
+except:
+    print("Model for custom model not found.")
+
 print("Model loaded successfully.")
 print("Model class names:", model.names)
 print("Model for registration plates loaded successfully.")
@@ -163,7 +191,8 @@ manager = ModelManager({
 manager.ensure_loaded(manager.active)
 
 
-#Function from recognize_Irish_Plates_Video_v6_flask.py to clean OCR text for common misrecognitions in Irish plates. It can be used to improve the accuracy of plate recognition by correcting common OCR errors.
+# Function from recognize_Irish_Plates_Video_v6_flask.py to clean OCR text for common misrecognitions in Irish plates.
+# It can be used to improve the accuracy of plate recognition by correcting common OCR errors.
 def clean_plate_text(text):
     """Clean OCR text for common misrecognitions in Irish plates."""
     text = text.upper().strip()
@@ -367,14 +396,15 @@ def process_frame(frame, frame_number):
                     (26, 9, 156),
                     10,
                 )
-
-    print(f"All unique plates found in frame: {unique_plates}")
+    # Development only
+    # print(f"All unique plates found in frame: {unique_plates}")
     with open("/app/recognized_plates_video.csv", "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["frame_number", "car_idx", "plate_idx", "plate_text"])
         writer.writerows(recognized_plates_log)
+        print("Recognized plates saved to recognized_plates_video.csv")
 
-    print("Recognized plates saved to recognized_plates_video.csv")
+    # print("Recognized plates saved to recognized_plates_video.csv")
 
     return frame
 
