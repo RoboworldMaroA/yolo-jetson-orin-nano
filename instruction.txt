@@ -72,21 +72,24 @@ sudo docker cp 7650bb243b50:/ultralytics/yolo11n-pose.onnx /home/maro/Yolo_Model
 sudo docker cp 7650bb243b50:/ultralytics/yolo11n-pose.pt /home/maro/Yolo_Models_TensorRT/yolo11n-pose.pt
 
 ############################################################################################################
-***********************************************
+********************************************************
 ************    DOCKER - easyOCR  **********************
-***********************************************
+********************************************************
 
+Because I had a problem instal Ultralitics so I have started using Ultralytics docer image jetpack6
 
 #########################################################
 #########################################################
 #########################################################
 ********** NEW Docker File that use easyOCR *************
-***************.    11 April 2026     *******************
+***************.    11 April 2026 - ongoing   ***********
+****************.        ADAS                 ***********  
 #########################################################
 #########################################################
 
 
-
+This programms uses a new docler image: yolo_web_easyocr
+It has pre installed easyOCR and Flask
 
 Created file requirement.txt and added library that will be instaled together with the docker
 
@@ -110,13 +113,47 @@ See details of the image
 docker images yolo_web_easyocr
 
 
-                        RUNNING
+Check what containers are running:
+sudo docker ps -a
+
+Run contaner (not a new container only this one that was already created. 
+So if you saved a files inside container or installed additional librarries there will be inside,
+If you wanna do this make sure you use a doccker command that dosent have "--rm" at the end)
+
+
+Runnig Contaner with pre installed ultralitics, flask, easyOCR
+
+1. Find a docker ID: sudo docker ps -a
+2. Run a container wit a given ID: 
+  sudo docker start <YOUR_CONTAINER_ID>
+  sudo docker exec -it <YOUR_CONTAINER_ID> /bin/bash
+Yolo container
+
+container easyOcr, Usltalitics, flask
+sudo docker start 9e80ed866c88
+sudo docker exec -it 9e80ed866c88 /bin/bash
+
+15 May 2026 - ADAS
+python /app/web_lazy_v6_new_model.py
+
+
+
+
+
+                        RUNNING -
+              but container will be removed
+               when you exit contaner
 #######################################################
 ******.  RUNNING PROCESS. - easyOCR *******************
 #######################################################
 Now Run the program using this command:
 cd ~
 cd yolo_app/
+
+When you run this commant you create container: (Check Container ID: sudo docker ps -a)
+Because I have ser --rm so when I exit it will be removing a container. 
+
+Command:
 
 sudo docker run -it --rm \
   --runtime nvidia --gpus all --ipc=host --privileged \
@@ -129,6 +166,7 @@ sudo docker run -it --rm \
 
 
 Then run program inside the activated docker container:
+
 
 python /app/recognize_Irish_Plates_Video_v6_flask.py
 06 April 2026
@@ -171,8 +209,78 @@ Running on http://172.17.0.2:5010
 
 
 
+*********************************************************************************************************
+************ Run Docker command that create Container and then start only container *********************
 
-######################################
+
+sudo docker run -it \
+  --runtime nvidia --gpus all --ipc=host --privileged \
+  --device /dev/video0:/dev/video0 --group-add video \
+  -v /home/maro/yolo_app:/app \
+  -v /home/maro/yolo_app/output:/results \
+  -p 5010:5010 \
+  --name yolo_web_easyocr \
+  yolo_web_easyocr:latest bash
+
+
+Container:
+root@9e80ed866c88:/ultralytics# 
+
+contaier id:  9e80ed866c88
+
+container easyOcr, Usltalitics, flask:
+Next Time run this commans it will be starting container and later open it
+sudo docker start 9e80ed866c88
+sudo docker exec -it 9e80ed866c88 /bin/bash
+
+
+
+Sopp running container:
+Even if you exit container then container is still runnig if you want to save resources you have to stop this:
+
+sudo docker stop 9e80ed866c88
+
+
+
+16 May 2026
+
+
+It is running a contaner created with Docker Ultralytic image and installed easyOCR, flask, Yolo librarries
+More Details chcek: Jetson Orin Nano .doc inctruction located on Mac
+Setup Jetson that automaticaly is running this service : /etc/systemd/system/adas.service
+This program is automaticaly runing: /home/maro/run_adas_app.sh
+This program will be executed: python /app/web_lazy_v6_new_model.py 
+
+See the logs use this command in terminal: tail -f /home/maro/yolo_app/flask_output.log
+
+Addition to that I have configured Jetson that when is boots it trying also connect firt to the phone hotspot
+if not succes then it connect to the local router
+
+###########.  RESTART SERVICE.   ######################
+After changes in the program restart service:
+sudo systemctl restart adas.service
+Check status: systemctl status adas.service
+
+Development:
+Edit this program if you change a name it wont be working You have to change the name in the run_adas_app.sh
+python /app/web_lazy_v6_new_model.py
+
+
+
+http://192.168.0.12:5010/
+
+
+
+
+
+
+
+
+
+
+
+######################## Others ####################
+###################################################
 
 ** List of the docker containers: **
 
@@ -363,6 +471,9 @@ python /app/web_stream_detect_and_save_cup_pose_port_5002.py
 #########################################################
 #########################################################
 
+This project is using "yolo_web" docker image,
+ probably programms in this section should works also inside the new docker image called:
+ yolo_web_easyocr (project developed from 10 MArch 2026)
 
 WEB LAZY 21 Feb 2026 -29 Mar 2026
 App that allows switch between model in the web broswer
@@ -465,6 +576,10 @@ Podpiecie dysku wymus polaczenie:
 ##### Shoud down PC  ######
 ###########################
 
+
+sync
 sudo reboot
+
+
 sync
 sudo shutdown -h now

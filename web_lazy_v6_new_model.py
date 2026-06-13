@@ -4,11 +4,18 @@
 # I am workin on Add a new way of licence plate recognition that allows me do the faster object detection
 
 # Base on web_lazy_v5_easyOCR_v2.py
-# This program allows to pick from the website between different models for inference on video stream. It includes a new model for Irish licence plate recognition, which detects cars, detects plates within those cars, and applies OCR to recognize the plate text. Recognized plates are saved as cropped images and logged in a CSV file. The web interface provides buttons to switch between detection, pose estimation, segmentation, custom model, and plate recognition modes. The producer thread captures video frames, runs inference with the active model, annotates the frames, and saves detected cups as images. 
+# This program allows to pick from the website between different models for inference on video stream. 
+# It includes a new model for Irish licence plate recognition, 
+# which detects cars, detects plates within those cars, and applies OCR to recognize the plate text.
+# Recognized plates are saved as cropped images and logged in a CSV file. The web interface provides buttons to switch between
+# detection, pose estimation, segmentation, custom model, and plate recognition modes. 
+# The producer thread captures video frames, runs inference with the active model, 
+# annotates the frames, and saves detected cups as images. 
 # The MJPEG generator streams the annotated video to the web interface.
 # ### It is what you can use: ### 
 # ## 1. EasyOCR custom model recognition Irish Licence Plates with YOLOv8n trained on Irish plates. 
-# The program processes video frames, detects cars, detects plates within those cars, and then applies OCR to recognize the plate text.
+# The program processes video frames, detects cars, detects plates within those cars, 
+# and then applies OCR to recognize the plate text.
 # Recognized plates are saved as cropped images and logged in a CSV file.
 # Program allow recognize object using yolo pretrained model and stream video with detections over web server
 # ## 2. Object Detection ##
@@ -22,14 +29,17 @@
 # ## 6. Licence Plate Recognition ##
 # Use a Yolo model traned on cutom datafor licence plate recognition. It can be used to detect licence plates in the video stream.
 # ### Interface ###
-# You can swith from the web browser between models like Pose Estimation and Object Detection, Segmentation, Custom MOdel Start Stop and Plate Recognition
-# If cub is reconize with 60% confidence or higher, it save the frame with detected cup in the /app folder with name detected_cup_TIMESTAMP.jpg
+# You can swith from the web browser between models like Pose Estimation and Object Detection, Segmentation, 
+# Custom MOdel Start Stop and Plate Recognition
+# If cub is reconize with 60% confidence or higher, it save the frame with detected cup in the /app folder with
+# name detected_cup_TIMESTAMP.jpg
 
 # It uses a yolo docker container, Uspb camera is connected to the Jetson Orin Nano
 # Check instruction.txt for how to run the program with docker
 # Run:
 # Use new docker Image with easyOCR and licence plate recognition model, which is based on YOLOv8n trained on Irish plates
 # http://192.168.0.12:5010/
+#can be use also with roboworld.react.marekaugustyn.whshost.com:5010 
 
 from ultralytics import YOLO
 from flask import Flask, Response, render_template, jsonify, request

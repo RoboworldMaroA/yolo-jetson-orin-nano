@@ -20,11 +20,12 @@
             /* font-optical-sizing: auto; */
             font-weight: 300;
             font-style: normal;
-
+            justify-content: center;
         }
 
         button {
             font-family: "Rajdhani";
+            font-weight: 300;
             font-color: rgba(44, 46, 10, 0.163);
             align-items: center;
             margin: 6px;
@@ -58,6 +59,11 @@
         }
 
         #second-row-buttons {
+            display: flex;
+            justify-content: center;
+        }
+
+        #third-row-buttons {
             display: flex;
             justify-content: center;
         }
@@ -152,6 +158,8 @@
             btnImprovedIrishPlateRecognition.disabled = v;
         }
 
+        // This function polls the /status endpoint every second to get the current active model and its loading status.
+        // If the model is not yet loaded, It updates the status text and button states accordingly.
         async function pollStatus() {
             try {
                 const r = await fetch('/status');
