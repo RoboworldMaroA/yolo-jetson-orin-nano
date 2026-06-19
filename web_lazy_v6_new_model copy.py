@@ -1,10 +1,8 @@
 
 # Author: Marek Augustyn
-# 19 June 2026
+# 15 May 2026
 # I am workin on Add a new way of licence plate recognition that allows me do the faster object detection
-# Add paddle ONNX model for licence plate recognition, which is faster than EasyOCR and more accurate for Irish plates.
-# Test only: 
-
+#It is copy of web_lazy_v6_new_model.py with new model for Irish licence plate recognition, which detects cars, detects plates within those cars, and applies OCR to recognize the plate text.
 # Base on web_lazy_v5_easyOCR_v2.py
 # This program allows to pick from the website between different models for inference on video stream. 
 # It includes a new model for Irish licence plate recognition, 
@@ -59,246 +57,9 @@ import re
 import csv
 import os
 
-import numpy as np
-import onnxruntime as ort
-
-
-
-#Create a new class thal we will use to read a linceces
-# class LPRNetRecognizer:
-#     def __init__(self, engine_path):
-#         self.engine_path = engine_path
-#         self.available = os.path.exists(engine_path)
-
-#         if self.available:
-#             print(f"LPRNet engine found: {engine_path}")
-#         else:
-#             print(f"LPRNet engine not found yet: {engine_path}")
-
-#     def predict(self, plate_crop):
-#         if not self.available:
-#             return "LPRNET-NOT-READY"
-
-#         # Tu później dodamy prawdziwe TensorRT inference
-#         return "LPRNET-TEST"
-
-
-# class LPRNetRecognizer:
-#     def __init__(self, onnx_path):
-#         self.onnx_path = onnx_path
-#         self.available = os.path.exists(onnx_path)
-
-#         self.alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-#         self.blank_index = len(self.alphabet)
-
-#         if not self.available:
-#             print(f"LPRNet ONNX not found yet: {onnx_path}")
-#             self.session = None
-#             self.input_name = None
-#             return
-
-#         providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
-#         self.session = ort.InferenceSession(onnx_path, providers=providers)
-#         self.input_name = self.session.get_inputs()[0].name
-
-#         print(f"LPRNet ONNX loaded: {onnx_path}")
-#         print("ONNX providers:", self.session.get_providers())
-#         print("Input:", self.session.get_inputs()[0].shape)
-
-#     def preprocess(self, plate_crop):
-#         img = cv2.resize(plate_crop, (94, 24))
-#         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-#         img = img.astype(np.float32) / 255.0
-
-#         img = (img - 0.5) / 0.5
-#         img = np.transpose(img, (2, 0, 1))
-#         img = np.expand_dims(img, axis=0)
-
-#         return img.astype(np.float32)
-
-#     def decode_ctc(self, output):
-#         output = np.squeeze(output)
-
-#         if output.ndim == 2:
-#             if output.shape[0] < output.shape[1]:
-#                 pred = np.argmax(output, axis=0)
-#             else:
-#                 pred = np.argmax(output, axis=1)
-#         else:
-#             return "BAD-OUTPUT"
-
-#         result = []
-#         prev = None
-
-#         for idx in pred:
-#             idx = int(idx)
-
-#             if idx == self.blank_index:
-#                 prev = idx
-#                 continue
-
-#             if idx != prev and idx < len(self.alphabet):
-#                 result.append(self.alphabet[idx])
-
-#             prev = idx
-
-#         return "".join(result)
-
-
-class LPRNetRecognizer:
-    def __init__(self, onnx_path):
-        self.onnx_path = onnx_path
-        self.available = os.path.exists(onnx_path)
-
-        self.alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        self.blank_index = len(self.alphabet)
-
-        if not self.available:
-            print(f"PaddleOCR ONNX not found yet: {onnx_path}")
-            self.session = None
-            self.input_name = None
-            return
-
-        providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
-        self.session = ort.InferenceSession(onnx_path, providers=providers)
-        self.input_name = self.session.get_inputs()[0].name
-
-        print(f"PaddleOCR ONNX loaded: {onnx_path}")
-        print("ONNX providers:", self.session.get_providers())
-        print("Input:", self.session.get_inputs()[0].shape)
-        print("Output:", self.session.get_outputs()[0].shape)
-
-    def preprocess(self, plate_crop):
-        img_h = 32
-        img_w = 160
-
-        img = cv2.resize(plate_crop, (img_w, img_h))
-        img = img.astype(np.float32)
-
-        # PaddleOCR style normalization
-        img = img / 255.0
-        img = (img - 0.5) / 0.5
-
-        img = np.transpose(img, (2, 0, 1))
-        img = np.expand_dims(img, axis=0)
-
-        return img.astype(np.float32)
-
-    def decode_ctc(self, output):
-        output = np.squeeze(output)
-
-        # PaddleOCR ONNX output: [time, classes]
-        pred = np.argmax(output, axis=1)
-
-        result = []
-        prev = None
-
-        for idx in pred:
-            idx = int(idx)
-
-            if idx == self.blank_index:
-                prev = idx
-                continue
-
-            if idx != prev and idx < len(self.alphabet):
-                result.append(self.alphabet[idx])
-
-            prev = idx
-
-        return "".join(result)
-
-    def format_irish_plate(self, text):
-        text = text.upper()
-        text = re.sub(r"[^A-Z0-9]", "", text)
-
-        match = re.search(r"(\d{2,3})([A-Z]{1,2})(\d{1,6})", text)
-        if match:
-            return f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
-
-        return text
-
-    def predict(self, plate_crop):
-        if not self.available or self.session is None:
-            return "PADDLE-NOT-READY"
-
-        try:
-            input_tensor = self.preprocess(plate_crop)
-            outputs = self.session.run(None, {self.input_name: input_tensor})
-            raw_text = self.decode_ctc(outputs[0])
-            print("PADDLE RAW:", raw_text)
-            return self.format_irish_plate(raw_text)
-        except Exception as e:
-            print(f"PaddleOCR ONNX error: {e}")
-            return "PADDLE-ERROR"
-
-    
-
-    # def format_irish_plate(self, text):
-    #     text = text.upper()
-    #     text = re.sub(r"[^A-Z0-9]", "", text)
-
-    #     match = re.match(r"^(\d{2,3})([A-Z]{1,2})(\d{1,6})$", text)
-    #     if match:
-    #         return f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
-
-    #     return text
-    def format_irish_plate(self, text):
-        text = text.upper()
-        text = re.sub(r"[^A-Z0-9]", "", text)
-
-        # Szukaj irlandzkiego wzoru w środku wyniku, np. 251D21332
-        match = re.search(r"(\d{2,3})([A-Z]{1,2})(\d{1,6})", text)
-        if match:
-            return f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
-
-        # Awaryjnie pokaż tylko pierwsze 12 znaków zamiast całego długiego ciągu
-        return text[:12]
-
-    def predict(self, plate_crop):
-        if not self.available or self.session is None:
-            return "LPRNET-NOT-READY"
-
-        try:
-            input_tensor = self.preprocess(plate_crop)
-            outputs = self.session.run(None, {self.input_name: input_tensor})
-            raw_text = self.decode_ctc(outputs[0])
-            return self.format_irish_plate(raw_text)
-        except Exception as e:
-            print(f"LPRNet ONNX error: {e}")
-            return "LPRNET-ERROR"
-
-
 
 
 # Configuration
-
-#Create a folder that store cropped images licence from the LPRN function:
-PLATE_DATASET_DIR = "/app/dataset_irish_plates/images"
-
-os.makedirs(PLATE_DATASET_DIR, exist_ok=True)
-
-print(f"Plate dataset directory ready: {PLATE_DATASET_DIR}")
-
-
-# MOdel for testing teached regonize first 20 images of Irish plates
-MODEL_PATH_LPRNET_ONNX = os.environ.get(
-    "MODEL_PATH_LPRNET_ONNX",
-    "/app/irish_plate_overfit.onnx"
-)
-
-
-# add a new wproffesional way instead of EasyOCR: lprnet 
-MODEL_PATH_LPRNET = os.environ.get(
-    "MODEL_PATH_LPRNET",
-    "/app/lprnet.engine"
-)
-
-# MODEL_PATH_LPRNET_ONNX = os.environ.get(
-#     "MODEL_PATH_LPRNET_ONNX",
-#     "/app/lprnet.onnx"
-# )
-
-
 MODEL_PATH_DETECT = os.environ.get("MODEL_PATH_DETECT", "/app/yolov8n.engine")
 MODEL_PATH_POSE = os.environ.get("MODEL_PATH_POSE", "/app/yolo11n-pose.engine")
 MODEL_PATH_SEGMENTATION = os.environ.get("MODEL_PATH_SEGMENTATION", "/app/yolo11n-seg.engine")
@@ -360,10 +121,6 @@ print("Model for registration plates loaded successfully.")
 print("Model class names for registration plates:", model_registration_plate.names)
 
 
-# lprnet_recognizer = LPRNetRecognizer(MODEL_PATH_LPRNET)
-lprnet_recognizer = LPRNetRecognizer(MODEL_PATH_LPRNET_ONNX)
-
-
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
 # Shared state
@@ -377,7 +134,7 @@ last_frame_time = None
 
 class ModelManager:
     """Lazy-load YOLO models and switch active model safely."""
-    def __init__(self, mapping, default="lprnet-anpr"):
+    def __init__(self, mapping, default="detection"):
         # mapping: name -> path
         self._mapping = mapping
         self._lock = threading.Lock()
@@ -457,9 +214,8 @@ manager = ModelManager({
     "custom-model": MODEL_PATH_CUSTOM_MODEL,
     "plate-recognition": MODEL_PATH_PLATE_RECOGNITION,
     "irish-plate-recognition": MODEL_PATH_PLATE_RECOGNITION,
-    "improved-irish-plate-recognition": MODEL_PATH_PLATE_RECOGNITION,
-    "lprnet-anpr": MODEL_PATH_PLATE_RECOGNITION
-}, default="lprnet-anpr")
+    "improved-irish-plate-recognition": MODEL_PATH_PLATE_RECOGNITION
+}, default="detection")
 # kick off load for default model in background
 manager.ensure_loaded(manager.active)
 
@@ -585,7 +341,7 @@ def process_cropped_licence_plate(cropped_img, index):
 #Recognized plates are saved as cropped images and logged in a CSV file. 
 #The function also annotates the video frame with detected cars and recognized plate text.
 def process_frame(frame, frame_number):
-    results = model(frame, imgsz=IMG_SIZE, verbose=False)
+    results = model(frame, imgsz=IMG_SIZE)
     if not results:
         return frame
 
@@ -711,107 +467,6 @@ def process_frame_optimized(frame, frame_number):
 
 
 
-def process_frame_lprnet(frame, frame_number):
-    """
-    New professional ANPR pipeline:
-    Vehicle detection -> plate detection -> LPRNet recognition.
-    This does NOT use EasyOCR.
-    """
-    cv2.putText(
-        frame,
-        "LPRNET MODE",
-        (50, 50),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        1,
-        (0, 255, 0),
-        2
-    )
-    results = model(frame, imgsz=IMG_SIZE, conf=0.5)
-
-    if not results:
-        return frame
-
-    result = results[0]
-    allowed_car_classes = [2, 5, 7]  # car, bus, truck
-
-    for car_idx, box in enumerate(result.boxes):
-        class_id = int(box.cls[0].item())
-        conf = float(box.conf[0].item())
-
-        if conf < 0.5 or class_id not in allowed_car_classes:
-            continue
-
-        x1, y1, x2, y2 = [int(coord) for coord in box.xyxy[0]]
-        car_crop = frame[y1:y2, x1:x2]
-
-        if car_crop.size == 0:
-            continue
-
-        licence_results = model_registration_plate(car_crop, imgsz=IMG_SIZE, conf=0.4)
-
-        if not licence_results:
-            continue
-
-        licence_result = licence_results[0]
-
-        for plate_idx, plate_box in enumerate(licence_result.boxes):
-            px1, py1, px2, py2 = [int(coord) for coord in plate_box.xyxy[0]]
-            plate_crop = car_crop[py1:py2, px1:px2]
-
-            if plate_crop.size == 0:
-                continue
-
-            # cv2.imwrite(
-            #     f"/app/debug_plate_{frame_number}.jpg",
-            #     plate_crop
-            # )
-            #Save cropped plate images for debugging and training purposes
-            print(f"Saving cropped plate image: frame {frame_number}, car {car_idx}, plate {plate_idx}")
-            # cv2.imwrite(f"/app/dataset_irish_plates/images/plate_{frame_number}_{plate_idx}.jpg",plate_crop)
-            # filename = f"/app/dataset_irish_plates/images/plate_{frame_number}_{plate_idx}.jpg"
-            # ok = cv2.imwrite(filename, plate_crop)
-            # print("SAVE:", filename, ok)
-
-            # filename = (f"{PLATE_DATASET_DIR}/"f"plate_{frame_number}_{car_idx}_{plate_idx}.jpg")
-            # ok = cv2.imwrite(filename, plate_crop)
-            # print(f"SAVE: {filename} -> {ok}")
-
-            if frame_number % 30 == 0:
-                os.makedirs("/app/dataset_irish_plates/images", exist_ok=True)
-                filename = (f"/app/dataset_irish_plates/images/"f"plate_{frame_number}_{car_idx}_{plate_idx}.jpg")
-                ok = cv2.imwrite(filename, plate_crop)
-                print(f"SAVE: {filename} -> {ok}")
-            
-            plate_text = lprnet_recognizer.predict(plate_crop)
-
-            abs_px1 = x1 + px1
-            abs_py1 = y1 + py1
-            abs_px2 = x1 + px2
-            abs_py2 = y1 + py2
-
-            cv2.rectangle(
-                frame,
-                (abs_px1, abs_py1),
-                (abs_px2, abs_py2),
-                (0, 255, 0),
-                2
-            )
-
-            cv2.putText(
-                frame,
-                plate_text,
-                (abs_px1, max(abs_py1 - 10, 30)),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1.0,
-                (0, 255, 0),
-                2,
-                cv2.LINE_AA
-            )
-            
-
-    return frame
-
-
 # Producer
 def producer():
     global latest_frame, fps_smoothed, last_frame_time
@@ -846,11 +501,9 @@ def producer():
             elif manager.active == "improved-irish-plate-recognition":
                 # placeholder for future improved pipeline (e.g. with better pre/post-processing)
                 annotated = process_frame_optimized(frame, frame_number)
-            elif manager.active == "lprnet-anpr":
-                annotated = process_frame_lprnet(frame, frame_number)
             else:
                 # run inference on single-frame
-                results = model(frame, imgsz=IMG_SIZE, verbose=False)
+                results = model(frame, imgsz=IMG_SIZE)
                 r = results[0]
                 annotated = r.plot() if hasattr(r, "plot") else frame
 
@@ -940,7 +593,7 @@ def video_feed():
 def switch_model():
     data = request.json or request.form
     name = data.get('model') if isinstance(data, dict) else None
-    if name not in ("detection", "pose", "segmentation", "custom-model", "plate-recognition", "irish-plate-recognition","improved-irish-plate-recognition","lprnet-anpr"):
+    if name not in ("detection", "pose", "segmentation", "custom-model", "plate-recognition", "irish-plate-recognition","improved-irish-plate-recognition"):
         return jsonify({"error": "invalid model"}), 400
     try:
         manager.switch(name)

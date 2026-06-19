@@ -104,6 +104,7 @@
         <button id="btn-pose">Pose Estimation</button>
         <button id="btn-segmentation">Segmentation</button> -->
         <button id="btn-improved-irish-plate-recognition">Improved Irish Plate Recognition</button>
+        <button id="btn-lprnet-anpr">LPRNet ANPR</button>
         <!-- <button id="btn-plate-recognition">Plate Recognition</button> -->
         <!-- <button id="btn-irish-plate-recognition">Irish Plate Recognition</button> -->
         <!-- <span id="status">Loading...</span> -->
@@ -123,6 +124,7 @@
         const btnPlateRecognition = document.getElementById('btn-plate-recognition');
         const btnIrishPlateRecognition = document.getElementById('btn-irish-plate-recognition');
         const btnImprovedIrishPlateRecognition = document.getElementById('btn-improved-irish-plate-recognition');
+        const btnLprnetAnpr = document.getElementById('btn-lprnet-anpr');
         const statusEl = document.getElementById('status');
 
         async function switchModel(name) {
@@ -148,6 +150,7 @@
         btnPlateRecognition.onclick = () => switchModel('plate-recognition');
         btnIrishPlateRecognition.onclick = () => switchModel('irish-plate-recognition');
         btnImprovedIrishPlateRecognition.onclick = () => switchModel('improved-irish-plate-recognition');
+        btnLprnetAnpr.onclick = () => switchModel('lprnet-anpr');
         function disableButtons(v) {
             btnDetect.disabled = v;
             btnPose.disabled = v;
@@ -156,6 +159,7 @@
             btnPlateRecognition.disabled = v;
             btnIrishPlateRecognition.disabled = v;
             btnImprovedIrishPlateRecognition.disabled = v;
+            btnLprnetAnpr.disabled = v;
         }
 
         // This function polls the /status endpoint every second to get the current active model and its loading status.
@@ -175,6 +179,7 @@
                 btnPlateRecognition.disabled = (active === 'plate-recognition');
                 btnIrishPlateRecognition.disabled = (active === 'irish-plate-recognition');
                 btnImprovedIrishPlateRecognition.disabled = (active === 'improved-irish-plate-recognition');
+                btnLprnetAnpr.disabled = (active === 'lprnet-anpr');
                 // if active model not yet loaded show loading and keep polling
                 if (!loaded[active]) {
                     statusEl.textContent = `Loading ${active}...`;

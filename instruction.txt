@@ -235,7 +235,7 @@ sudo docker exec -it 9e80ed866c88 /bin/bash
 
 
 
-Sopp running container:
+Stop running container:
 Even if you exit container then container is still runnig if you want to save resources you have to stop this:
 
 sudo docker stop 9e80ed866c88

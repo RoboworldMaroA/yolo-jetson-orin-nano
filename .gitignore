@@ -39,6 +39,20 @@ directoryWithVideos/*.webm
 directoryWithConvertedVideo/*.mp4
 photos/*.jpg
 smallphotos/*.jpg
+Croped_licence_plates/*.jpg
+Cropped_licence_plates/*.jpg
+Croped_licence_plates/*.png
+Cropped_licence_plates/*.png
+dataset_irish_plates/images/*.jpg
+dataset_irish_plates/images/*.png
+dataset_irish_plates/labels/*.txt
+dataset_renamed/images/*.jpg
+dataset_renamed/images/*.png
+dataset_renamed/train_draft.txt
+imgaes_only_recognized_plates/*.jpg
+imgaes_only_recognized_plates/*.png
+images_only_reconized_plates/*.jpg
+images_only_reconized_plates/*.png
 parkingVenv/*
 EasyOCR/*
 /EasyOCR/*
@@ -91,3 +105,5 @@ EasyOCR/
 # --- Logi i Cache ---
 *.log
 .cache/
+
+instructions.txt
