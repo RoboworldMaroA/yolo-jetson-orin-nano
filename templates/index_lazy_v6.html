@@ -111,12 +111,34 @@
     </div>
 
 
+
+
     <!-- </div> -->
     <div>
         <span id="status">Loading...</span>
     </div>
 
+    <div style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
+        <button id="record-toggle">Start recording</button>
+        <button id="save-image">Save image</button>
+        <span id="save-image-status" style="color:orange; margin-left:12px;"></span>
 
+        <select id="record-resolution" style="margin-left:10px;">
+            <option value="1280x720">1280x720</option>
+            <option value="960x540">960x540</option>
+            <option value="640x360">640x360</option>
+        </select>
+
+        <select id="record-fps" style="margin-left:10px;">
+            <option value="30">30 FPS</option>
+            <option value="20">20 FPS</option>
+            <option value="15">15 FPS</option>
+            <option value="10">10 FPS</option>
+        </select>
+
+
+        <span id="record-status" style="color:orange; margin-left:12px;">Recording: off</span>
+    </div>
 
     <div style="display:flex; justify-content:center; margin-top:10px;">
         <button id="toggle-camera-settings">Camera settings</button>
@@ -421,6 +443,49 @@
             toggleCameraSettingsBtn.textContent = isHidden
                 ? 'Hide camera settings'
                 : 'Camera settings';
+        };
+
+        let isRecording = false;
+
+        document.getElementById('record-toggle').onclick = async () => {
+            const res = document.getElementById('record-resolution').value;
+            const fps = parseInt(document.getElementById('record-fps').value);
+
+            const [width, height] = res.split('x').map(Number);
+
+            const r = await fetch('/recording/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ width, height, fps })
+            });
+
+            const j = await r.json();
+            console.log('Recording:', j);
+
+            if (j.ok) {
+                isRecording = j.recording;
+
+                document.getElementById('record-toggle').textContent =
+                    isRecording ? 'Stop recording' : 'Start recording';
+
+                document.getElementById('record-status').textContent =
+                    isRecording ? `Recording: ON ${width}x${height} ${fps}FPS` : 'Recording: off';
+            }
+        };
+
+
+        // save image
+        document.getElementById('save-image').onclick = async () => {
+            const r = await fetch('/recording/save_image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const j = await r.json();
+            console.log('Save image:', j);
+
+            document.getElementById('save-image-status').textContent =
+                j.ok ? 'Image saved' : 'Save failed';
         };
 
     </script>

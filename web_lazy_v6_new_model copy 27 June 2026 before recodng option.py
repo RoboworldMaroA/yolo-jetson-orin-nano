@@ -1,6 +1,6 @@
 
 # Author: Marek Augustyn
-# 27 June 2026
+# 26 June 2026
 # I am workin on Add a new way of licence plate recognition that allows me do the faster object detection
 # Add paddle ONNX model for licence plate recognition, which is faster than EasyOCR and more accurate for Irish plates.
 # Test only: 
@@ -57,17 +57,12 @@ reader = easyocr.Reader(["en"], gpu=True) # Initialize ONCE here
 
 import re
 import csv
-# import os
+import os
 
 import numpy as np
 import onnxruntime as ort
 
 import subprocess
-
-#Imports for recoding option
-from datetime import datetime
-# import os
-
 
 
 class LPRNetRecognizer:
@@ -198,24 +193,6 @@ camera_zoom_abs = 150
 
 #variable flip frame for camera
 camera_flip_180 = False
-
-# variable for recodning 
-recording_enabled = False
-recording_writer = None
-recording_fps = 30
-recording_width = 1280
-recording_height = 720
-RECORDING_DIR = "/app/road_recordings"
-
-#make an images
-# images_button_activated = False
-# IMAGES_DIR = "/app/images_from_camera_stream_jetson_nano"
-IMAGES_DIR = "/app/images_from_camera_stream_jetson_nano"
-latest_raw_frame = None
-
-#save to .csv files registration
-last_saved_plate = ""
-last_saved_time = 0
 
 # Configuration
 
@@ -669,7 +646,6 @@ def process_frame_optimized(frame, frame_number):
 
 
 def process_frame_lprnet(frame, frame_number):
-    global last_saved_plate, last_saved_time
     """
     New professional ANPR pipeline:
     Vehicle detection -> plate detection -> LPRNet recognition.
@@ -765,56 +741,7 @@ def process_frame_lprnet(frame, frame_number):
                 2,
                 cv2.LINE_AA
             )
-
-            # saving to .csv only if the plate is new or 10 seconds have passed since the last save
-            now = time.time()
-
-            if (
-                plate_text
-                and "ERROR" not in plate_text
-                and "NOT-READY" not in plate_text
-                and (
-                    plate_text != last_saved_plate
-                    or now - last_saved_time > 10
-                )
-            ):
-                last_saved_plate = plate_text
-                last_saved_time = now
-
-                timestamp = time.strftime("%Y%m%d_%H%M%S")
-
-                os.makedirs("/app/anpr_results/crops", exist_ok=True)
-                os.makedirs("/app/anpr_results/frames", exist_ok=True)
-
-                crop_filename = f"/app/anpr_results/crops/{timestamp}_{frame_number}_{car_idx}_{plate_idx}.jpg"
-                frame_filename = f"/app/anpr_results/frames/{timestamp}_{frame_number}_{car_idx}_{plate_idx}.jpg"
-
-                cv2.imwrite(crop_filename, plate_crop)
-                cv2.imwrite(frame_filename, frame)
-
-                csv_path = "/app/anpr_results/plates.csv"
-                write_header = not os.path.exists(csv_path)
-
-                with open(csv_path, "a") as f:
-                    if write_header:
-                        f.write("timestamp,plate_text,crop_file,frame_file\n")
-
-                    f.write(
-                        f"{timestamp},{plate_text},{crop_filename},{frame_filename}\n"
-                    )
-            # if plate_text and "ERROR" not in plate_text and "NOT-READY" not in plate_text:
-            #     timestamp = time.strftime("%Y%m%d_%H%M%S")
-            #     os.makedirs("/app/anpr_results/crops", exist_ok=True)
-            #     os.makedirs("/app/anpr_results/frames", exist_ok=True)
-            #     crop_filename = f"/app/anpr_results/crops/{timestamp}_{frame_number}.jpg"
-            #     frame_filename = f"/app/anpr_results/frames/{timestamp}_{frame_number}.jpg"
-            #     cv2.imwrite(crop_filename, plate_crop)
-            #     cv2.imwrite(frame_filename, frame)
-
-            #     with open("/app/anpr_results/plates.csv", "a") as f:
-            #         f.write(
-            #             f"{timestamp},{plate_text},{crop_filename},{frame_filename}\n"
-            #         )
+            
 
     return frame
 
@@ -849,7 +776,6 @@ def producer():
     # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     # cap.set(cv2.CAP_PROP_FPS, 30)
     global latest_frame, fps_smoothed, last_frame_time, cap_global
-    global latest_raw_frame
     cap = cv2.VideoCapture(CAMERA_SOURCE)
     cap_global = cap
     cap.set(cv2.CAP_PROP_FOURCC,cv2.VideoWriter_fourcc(*'MJPG'))
@@ -900,24 +826,8 @@ def producer():
         #get rotated frame if the camera is mounted upside down
         frame = apply_camera_orientation(frame)
         frame = apply_digital_zoom(frame, camera_digital_zoom)
-        # frame = apply_digital_zoom(frame,camera_digital_zoom)
-        # Last frame used to save when user press save_image_button
-        latest_raw_frame = frame.copy()
 
-
-        # Recording
-        if recording_enabled and recording_writer is not None:
-            rec_frame = cv2.resize(frame, (recording_width, recording_height))
-            recording_writer.write(rec_frame)
-            # if imgages_button_activated:
-            #     # Save the frame as an image
-            #     timestamp = int(time.time())
-            #     image_filename = f"{IMAGES_DIR}/frame_{timestamp}.jpg"
-            #     cv2.imwrite(image_filename, rec_frame)
-            #     print(f"Saved image: {image_filename}")
-            # recording_writer.write(rec_frame)
-
-      
+        frame = apply_digital_zoom(frame,camera_digital_zoom)
 
         # get active model (may be None if still loading)
         model = manager.get_active()
@@ -1214,81 +1124,6 @@ def set_camera_orientation():
         "mode": "car" if camera_flip_180 else "normal",
         "flip_180": camera_flip_180,
         "ok": True
-    })
-
-#Recording end point
-@app.route("/recording/toggle", methods=["POST"])
-def toggle_recording():
-    global recording_enabled, recording_writer, recording_fps, recording_width, recording_height
-
-    data = request.get_json() or {}
-
-    recording_fps = int(data.get("fps", recording_fps))
-    recording_width = int(data.get("width", recording_width))
-    recording_height = int(data.get("height", recording_height))
-
-    os.makedirs(RECORDING_DIR, exist_ok=True)
-
-    if not recording_enabled:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = os.path.join(RECORDING_DIR, f"road_recording_{timestamp}.mp4")
-
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-
-        recording_writer = cv2.VideoWriter(
-            filename,
-            fourcc,
-            recording_fps,
-            (recording_width, recording_height)
-        )
-
-        if not recording_writer.isOpened():
-            recording_writer = None
-            return jsonify({"ok": False, "error": "VideoWriter failed"}), 500
-
-        recording_enabled = True
-
-        return jsonify({
-            "ok": True,
-            "recording": True,
-            "file": filename,
-            "fps": recording_fps,
-            "width": recording_width,
-            "height": recording_height
-        })
-
-    else:
-        recording_enabled = False
-
-        if recording_writer is not None:
-            recording_writer.release()
-            recording_writer = None
-
-        return jsonify({
-            "ok": True,
-            "recording": False
-        })
-
-@app.route("/recording/save_image", methods=["POST"])
-def save_current_image():
-    global latest_raw_frame
-
-    if latest_raw_frame is None:
-        return jsonify({
-            "ok": False,
-            "error": "No frame available"
-        }), 500
-
-    os.makedirs(IMAGES_DIR, exist_ok=True)
-
-    timestamp = time.strftime("%Y%m%d_%H%M%S")
-    filename = os.path.join(IMAGES_DIR, f"frame_{timestamp}.jpg")
-
-    ok = cv2.imwrite(filename, latest_raw_frame)
-
-    return jsonify({
-        "ok": bool(ok),
-        "file": filename
     })
 
 if __name__ == '__main__':
