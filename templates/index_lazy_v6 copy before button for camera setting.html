@@ -116,64 +116,47 @@
         <span id="status">Loading...</span>
     </div>
 
-
-
-    <div style="display:flex; justify-content:center; margin-top:10px;">
-        <button id="toggle-camera-settings">Camera settings</button>
+    <div id="focus-controls" style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
+        <button id="focus-minus">Focus -</button>
+        <span id="focus-value" style="color:orange; margin: 0 12px;font-size: 0.6em;">Focus: 30</span>
+        <button id="focus-plus">Focus +</button>
     </div>
 
-    <div id="camera-settings-panel" style="display:none; margin-top:10px;">
-        <div id="focus-controls" style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
-            <button id="focus-minus">Focus -</button>
-            <span id="focus-value" style="color:orange; margin: 0 12px;font-size: 0.6em;">Focus: 30</span>
-            <button id="focus-plus">Focus +</button>
-        </div>
-
-        <!-- <div id="exposure-controls" style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
+    <!-- <div id="exposure-controls" style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
         <button id="exposure-minus">Exposure -</button>
         <span id="exposure-value" style="color:orange; margin: 0 12px;">Exposure: -5</span>
         <button id="exposure-plus">Exposure +</button>
     </div> -->
 
-        <!-- <div style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
+    <!-- <div style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
         <button id="zoom-abs-minus">Zoom -</button>
         <span id="zoom-abs-value" style="color:orange; margin: 0 12px;">Zoom: 100</span>
         <button id="zoom-abs-plus">Zoom +</button>
     </div> -->
 
-        <div style="display:flex; justify-content:center; align-items:center; margin-top:3px;">
-            <button id="digital-zoom-minus">Digital Zoom -</button>
-            <span id="digital-zoom-value" style="color:orange; margin: 0 5px;font-size: 0.6em;">Digital Zoom:
-                1.0x</span>
-            <button id="digital-zoom-plus">Digital Zoom +</button>
-        </div>
-
-        <div id="gain-controls" style="display:flex; justify-content:center; align-items:center; margin-top:3px;">
-            <button id="gain-minus">Gain -</button>
-            <span id="gain-value" style="color:orange; margin: 0 5px;font-size: 0.6em;">Gain: 0</span>
-            <button id="gain-plus">Gain +</button>
-        </div>
-
-        <div style="display:flex; justify-content:center; align-items:center; margin-top:3px;">
-            <button id="exposure-abs-minus">Exposure -</button>
-            <span id="exposure-abs-value" style="color:orange; margin: 0 5px;font-size: 0.6em;">Exposure abs: 210</span>
-            <button id="exposure-abs-plus">Exposure +</button>
-        </div>
-
-        <div style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
-            <button id="camera-normal">Normal</button>
-            <button id="camera-car">Car / 180°</button>
-            <span id="camera-orientation-value" style="color:orange; margin: 0 12px;">Mode: Normal</span>
-        </div>
+    <div style="display:flex; justify-content:center; align-items:center; margin-top:3px;">
+        <button id="digital-zoom-minus">Digital Zoom -</button>
+        <span id="digital-zoom-value" style="color:orange; margin: 0 5px;font-size: 0.6em;">Digital Zoom: 1.0x</span>
+        <button id="digital-zoom-plus">Digital Zoom +</button>
     </div>
 
+    <div id="gain-controls" style="display:flex; justify-content:center; align-items:center; margin-top:3px;">
+        <button id="gain-minus">Gain -</button>
+        <span id="gain-value" style="color:orange; margin: 0 5px;font-size: 0.6em;">Gain: 0</span>
+        <button id="gain-plus">Gain +</button>
+    </div>
 
+    <div style="display:flex; justify-content:center; align-items:center; margin-top:3px;">
+        <button id="exposure-abs-minus">Exposure -</button>
+        <span id="exposure-abs-value" style="color:orange; margin: 0 5px;font-size: 0.6em;">Exposure abs: 210</span>
+        <button id="exposure-abs-plus">Exposure +</button>
+    </div>
 
-
-
-
-
-
+    <div style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
+        <button id="camera-normal">Normal</button>
+        <button id="camera-car">Car / 180°</button>
+        <span id="camera-orientation-value" style="color:orange; margin: 0 12px;">Mode: Normal</span>
+    </div>
 
     <div id="stream-row" style="margin-top:10px">
         <img id="stream" src="/video_feed" width="640px" />
@@ -408,20 +391,6 @@
 
         document.getElementById('camera-car').onclick = () =>
             setCameraOrientation('car');
-
-
-        const toggleCameraSettingsBtn = document.getElementById('toggle-camera-settings');
-        const cameraSettingsPanel = document.getElementById('camera-settings-panel');
-
-        toggleCameraSettingsBtn.onclick = () => {
-            const isHidden = cameraSettingsPanel.style.display === 'none';
-
-            cameraSettingsPanel.style.display = isHidden ? 'block' : 'none';
-
-            toggleCameraSettingsBtn.textContent = isHidden
-                ? 'Hide camera settings'
-                : 'Camera settings';
-        };
 
     </script>
 </body>

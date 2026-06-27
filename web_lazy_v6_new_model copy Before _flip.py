@@ -1,6 +1,6 @@
 
 # Author: Marek Augustyn
-# 26 June 2026
+# 21 June 2026
 # I am workin on Add a new way of licence plate recognition that allows me do the faster object detection
 # Add paddle ONNX model for licence plate recognition, which is faster than EasyOCR and more accurate for Irish plates.
 # Test only: 
@@ -190,9 +190,6 @@ V4L2_CTL = "/usr/bin/v4l2-ctl"
 camera_digital_zoom = 1.0
 
 camera_zoom_abs = 150
-
-#variable flip frame for camera
-camera_flip_180 = False
 
 # Configuration
 
@@ -386,16 +383,6 @@ manager = ModelManager({
 }, default="lprnet-anpr")
 # kick off load for default model in background
 manager.ensure_loaded(manager.active)
-
-
-#function that help rptate a frame by 180 degrees if the camera is mounted upside down
-def apply_camera_orientation(frame):
-    global camera_flip_180
-
-    if camera_flip_180:
-        return cv2.rotate(frame, cv2.ROTATE_180)
-
-    return frame
 
 
 # Function from recognize_Irish_Plates_Video_v6_flask.py to clean OCR text for common misrecognitions in Irish plates.
@@ -823,10 +810,6 @@ def producer():
             time.sleep(0.05)
             continue
         
-        #get rotated frame if the camera is mounted upside down
-        frame = apply_camera_orientation(frame)
-        frame = apply_digital_zoom(frame, camera_digital_zoom)
-
         frame = apply_digital_zoom(frame,camera_digital_zoom)
 
         # get active model (may be None if still loading)
@@ -1105,24 +1088,6 @@ def set_camera_digital_zoom():
 
     return jsonify({
         "zoom": camera_digital_zoom,
-        "ok": True
-    })
-#Orientation
-@app.route("/camera/orientation", methods=["POST"])
-def set_camera_orientation():
-    global camera_flip_180
-
-    data = request.get_json() or {}
-    mode = data.get("mode", "normal")
-
-    if mode == "car":
-        camera_flip_180 = True
-    else:
-        camera_flip_180 = False
-
-    return jsonify({
-        "mode": "car" if camera_flip_180 else "normal",
-        "flip_180": camera_flip_180,
         "ok": True
     })
 

@@ -1,6 +1,6 @@
 
 # Author: Marek Augustyn
-# 26 June 2026
+# 19 June 2026
 # I am workin on Add a new way of licence plate recognition that allows me do the faster object detection
 # Add paddle ONNX model for licence plate recognition, which is faster than EasyOCR and more accurate for Irish plates.
 # Test only: 
@@ -61,8 +61,6 @@ import os
 
 import numpy as np
 import onnxruntime as ort
-
-import subprocess
 
 
 class LPRNetRecognizer:
@@ -179,20 +177,6 @@ class LPRNetRecognizer:
 
 
 
-
-# Focus variables for the Irish plate recognition pipeline
-camera_focus = 30
-# camera_exposure = -5
-camera_exposure_abs = 210
-camera_gain = 0
-cap_global = None
-V4L2_CTL = "/usr/bin/v4l2-ctl"
-camera_digital_zoom = 1.0
-
-camera_zoom_abs = 150
-
-#variable flip frame for camera
-camera_flip_180 = False
 
 # Configuration
 
@@ -386,16 +370,6 @@ manager = ModelManager({
 }, default="lprnet-anpr")
 # kick off load for default model in background
 manager.ensure_loaded(manager.active)
-
-
-#function that help rptate a frame by 180 degrees if the camera is mounted upside down
-def apply_camera_orientation(frame):
-    global camera_flip_180
-
-    if camera_flip_180:
-        return cv2.rotate(frame, cv2.ROTATE_180)
-
-    return frame
 
 
 # Function from recognize_Irish_Plates_Video_v6_flask.py to clean OCR text for common misrecognitions in Irish plates.
@@ -745,58 +719,18 @@ def process_frame_lprnet(frame, frame_number):
 
     return frame
 
-# digital zoom function to crop and resize the frame based on the zoom factor
-def apply_digital_zoom(frame, zoom):
-    if zoom <= 1.0:
-        return frame
-
-    h, w = frame.shape[:2]
-
-    new_w = int(w / zoom)
-    new_h = int(h / zoom)
-
-    x1 = (w - new_w) // 2
-    y1 = (h - new_h) // 2
-
-    cropped = frame[y1:y1 + new_h, x1:x1 + new_w]
-
-    return cv2.resize(
-        cropped,
-        (w, h),
-        interpolation=cv2.INTER_LINEAR
-    )
-
-
 
 # Producer
 def producer():
-    # global latest_frame, fps_smoothed, last_frame_time
-    # cap = cv2.VideoCapture(CAMERA_SOURCE)
+    global latest_frame, fps_smoothed, last_frame_time
+    cap = cv2.VideoCapture(CAMERA_SOURCE)
     # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
     # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     # cap.set(cv2.CAP_PROP_FPS, 30)
-    global latest_frame, fps_smoothed, last_frame_time, cap_global
-    cap = cv2.VideoCapture(CAMERA_SOURCE)
-    cap_global = cap
     cap.set(cv2.CAP_PROP_FOURCC,cv2.VideoWriter_fourcc(*'MJPG'))
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     cap.set(cv2.CAP_PROP_FPS, 60)
-    #focus setup
-    cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-    cap.set(cv2.CAP_PROP_FOCUS, camera_focus)
-    #exposure setup
-    # cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
-    # cap.set(cv2.CAP_PROP_EXPOSURE, camera_exposure)
-    subprocess.run([V4L2_CTL, "-c", "auto_exposure=1"])
-    subprocess.run([V4L2_CTL, "-c", "exposure_dynamic_framerate=0"])
-    subprocess.run([V4L2_CTL, "-c", f"exposure_time_absolute={camera_exposure_abs}"])
-    subprocess.run([V4L2_CTL, "-c", f"gain={camera_gain}"])
-    #zoom setup
-    subprocess.run([V4L2_CTL, "-d", "/dev/video0", "--set-ctrl", f"zoom_absolute={camera_zoom_abs}"])
-    #gain setup
-    # cap.set(cv2.CAP_PROP_GAIN, camera_gain)
-
     print("Camera resolution:",cap.get(cv2.CAP_PROP_FRAME_WIDTH),cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     print(
         "FPS:",
@@ -822,12 +756,6 @@ def producer():
         if not ret:
             time.sleep(0.05)
             continue
-        
-        #get rotated frame if the camera is mounted upside down
-        frame = apply_camera_orientation(frame)
-        frame = apply_digital_zoom(frame, camera_digital_zoom)
-
-        frame = apply_digital_zoom(frame,camera_digital_zoom)
 
         # get active model (may be None if still loading)
         model = manager.get_active()
@@ -954,177 +882,6 @@ def status():
     s.update({"fps": fps_smoothed})
     return jsonify(s)
 
-@app.route("/camera/focus", methods=["POST"])
-def set_camera_focus():
-    global camera_focus, cap_global
-
-    data = request.get_json() or {}
-    value = int(data.get("focus", camera_focus))
-
-    value = max(0, min(255, value))
-    camera_focus = value
-
-    ok = False
-    if cap_global is not None:
-        cap_global.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-        ok = cap_global.set(cv2.CAP_PROP_FOCUS, camera_focus)
-
-    return jsonify({
-        "focus": camera_focus,
-        "ok": bool(ok)
-    })
-
-# @app.route("/camera/exposure", methods=["POST"])
-# def set_camera_exposure():
-#     global camera_exposure, cap_global
-
-#     data = request.get_json() or {}
-#     value = int(data.get("exposure", camera_exposure))
-
-#     value = max(-13, min(0, value))
-#     camera_exposure = value
-
-#     ok = False
-#     if cap_global is not None:
-#         cap_global.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
-#         ok = cap_global.set(cv2.CAP_PROP_EXPOSURE, camera_exposure)
-
-#     return jsonify({"exposure": camera_exposure, "ok": bool(ok)})
-
-# @app.route("/camera/exposure", methods=["POST"])
-# def set_camera_exposure():
-#     global camera_exposure
-
-#     value = int(request.json["exposure"])
-
-#     value = max(3, min(2047, value))
-
-#     subprocess.run([
-#         "v4l2-ctl",
-#         "-c",
-#         f"exposure_time_absolute={value}"
-#     ])
-
-#     camera_exposure = value
-
-#     return jsonify({
-#         "exposure": value,
-#         "ok": True
-#     })
-
-# camera_exposure_abs = 210
-
-@app.route("/camera/exposure_abs", methods=["POST"])
-def set_camera_exposure_abs():
-    global camera_exposure_abs
-
-    data = request.get_json() or {}
-    value = int(data.get("exposure", camera_exposure_abs))
-    value = max(3, min(2047, value))
-
-    subprocess.run([
-        "v4l2-ctl",
-        "-c",
-        "auto_exposure=1"
-    ])
-
-    subprocess.run([
-        "v4l2-ctl",
-        "-c",
-        "exposure_dynamic_framerate=0"
-    ])
-
-    result = subprocess.run([
-        "v4l2-ctl",
-        "-c",
-        f"exposure_time_absolute={value}"
-    ])
-
-    camera_exposure_abs = value
-
-    return jsonify({
-        "exposure": camera_exposure_abs,
-        "ok": result.returncode == 0
-    })
-
-@app.route("/camera/gain", methods=["POST"])
-def set_camera_gain():
-    global camera_gain, cap_global
-
-    data = request.get_json() or {}
-    value = int(data.get("gain", camera_gain))
-
-    value = max(0, min(255, value))
-    camera_gain = value
-
-    ok = False
-    if cap_global is not None:
-        ok = cap_global.set(cv2.CAP_PROP_GAIN, camera_gain)
-
-    return jsonify({"gain": camera_gain, "ok": bool(ok)})
-
-# camera_zoom_abs = 100
-
-# @app.route("/camera/zoom_abs", methods=["POST"])
-# def set_camera_zoom_abs():
-#     global camera_zoom_abs
-
-#     data = request.get_json() or {}
-#     value = int(data.get("zoom", camera_zoom_abs))
-
-#     # u Ciebie realnie działa 100-177
-#     value = max(100, min(500, value))
-#     camera_zoom_abs = value
-
-#     result = subprocess.run([
-#         V4L2_CTL,
-#         "-d",
-#         "/dev/video0",
-#         "--set-ctrl",
-#         f"zoom_absolute={value}"
-#     ])
-
-#     return jsonify({
-#         "zoom": camera_zoom_abs,
-#         "ok": result.returncode == 0
-#     })
-#Digital zoom is a software-based zoom that crops and resizes the image, while zoom_absolute is a hardware-based zoom that adjusts the camera lens. The digital zoom can be set to a value between 1.0 (no zoom) and 3.0 (3x zoom), and it is applied in the producer function before processing the frame.
-@app.route("/camera/digital_zoom", methods=["POST"])
-def set_camera_digital_zoom():
-    global camera_digital_zoom
-
-    data = request.get_json() or {}
-
-    value = float(
-        data.get("zoom", camera_digital_zoom)
-    )
-
-    value = max(1.0, min(3.0, value))
-
-    camera_digital_zoom = value
-
-    return jsonify({
-        "zoom": camera_digital_zoom,
-        "ok": True
-    })
-#Orientation
-@app.route("/camera/orientation", methods=["POST"])
-def set_camera_orientation():
-    global camera_flip_180
-
-    data = request.get_json() or {}
-    mode = data.get("mode", "normal")
-
-    if mode == "car":
-        camera_flip_180 = True
-    else:
-        camera_flip_180 = False
-
-    return jsonify({
-        "mode": "car" if camera_flip_180 else "normal",
-        "flip_180": camera_flip_180,
-        "ok": True
-    })
 
 if __name__ == '__main__':
     prod = threading.Thread(target=producer, daemon=True)
@@ -1134,6 +891,3 @@ if __name__ == '__main__':
     finally:
         stop_event.set()
         prod.join(timeout=2.0)
-
-
-
