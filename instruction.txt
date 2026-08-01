@@ -270,8 +270,18 @@ python /app/web_lazy_v6_new_model.py
 http://192.168.0.12:5010/
 
 
+28 June 2026
+Automaticaly start web_lazy_v6_new_model.py 
+Inside you can chaeck what is a recent program that was used.
+Could be:
 
+adas.py
+adas_road.py
 
+Retstart Server:
+
+docker exec 9e80ed866c88 pkill -f web_lazy_v6_new_model.py
+sudo systemctl restart adas.service
 
 
 
@@ -583,3 +593,21 @@ sudo reboot
 
 sync
 sudo shutdown -h now
+
+
+
+
+
+Restart ADAS Service:
+docker exec 9e80ed866c88 pkill -f web_lazy_v6_new_model.py
+docker exec 9e80ed866c88 pkill -f adas_road.py
+sudo systemctl restart adas.service
+
+Jak bedzie kamera error, zawieszona z powodu nagrywania, zamknij port:
+
+# Ubiej wszystko, co nasłuchuje na porcie 5010
+sudo fuser -k 5010/tcp
+
+# Wyczyszczenie zakleszczonych procesów pythona od adas i helpera
+sudo pkill -f adas_road.py
+#.       tail -f /home/maro/yolo_app/flask_output.log

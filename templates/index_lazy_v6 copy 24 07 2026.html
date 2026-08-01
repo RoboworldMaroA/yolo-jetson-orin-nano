@@ -4,20 +4,27 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Roboworld Jetson</title>
+    <title>Roboworld Jetson
+
+    </title>
     <style>
         body {
             margin: 1rem;
+            /* display: flex; */
             place-items: center;
             background-color: #060606 !important;
-            font-family: "Rajdhani", sans-serif;
+            /* min-width: 320px;
+  min-height: 100vh; */
+
+            font-family: "Rajdhani";
+            /* font-optical-sizing: auto; */
             font-weight: 300;
             font-style: normal;
             justify-content: center;
         }
 
         button {
-            font-family: "Rajdhani", sans-serif;
+            font-family: "Rajdhani";
             font-weight: 300;
             font-color: rgba(44, 46, 10, 0.163);
             align-items: center;
@@ -25,7 +32,6 @@
             padding: 8px 14px;
             font-size: 0.8em;
             border-radius: 5px;
-            cursor: pointer;
         }
 
         button:active {
@@ -39,19 +45,34 @@
             color: rgba(230, 146, 12, 0.808);
             display: flex;
             justify-content: center;
+
         }
 
         h2 {
             text-align: center;
             font-size: 1.0em;
-            color: white;
-            margin: 4px 0;
         }
 
-        #first-row-buttons,
-        #second-row-buttons,
-        #third-row-buttons,
-        #fourth-row-buttons,
+        #first-row-buttons {
+            display: flex;
+            justify-content: center;
+        }
+
+        #second-row-buttons {
+            display: flex;
+            justify-content: center;
+        }
+
+        #third-row-buttons {
+            display: flex;
+            justify-content: center;
+        }
+
+        #fourth-row-buttons {
+            display: flex;
+            justify-content: center;
+        }
+
         #stream-row {
             display: flex;
             justify-content: center;
@@ -61,8 +82,12 @@
 
 <body>
     <h2>Object Detection, Pose Estimation, Segmentation.</h2>
-    <h2>Custom model - Yolo 11 (Jetson Orin Nano)</h2>
+    <h2>Custom model- Yolo 11 (Jetson Orin Nano)</h2>
     <h2>Recognize Irish registration plates (easyOCR)</h2>
+    <!-- <button id="btn-shutdown" style="background:#b00020; color:white;">
+        Turn Off Jetson
+    </button> -->
+
 
     <div style="display:flex; justify-content:center; margin-top:10px;">
         <button id="toggle-system-panel">System</button>
@@ -88,28 +113,57 @@
         </div>
     </div>
 
+
+
+
+
     <div id="first-row-buttons">
         <button id="btn-detect">Object Detection</button>
         <button id="btn-pose">Pose Estimation</button>
         <button id="btn-segmentation">Segmentation</button>
+        <!-- <button id="btn-custom-model">Custom Model</button>
+        <button id="btn-plate-recognition">Plate Recognition</button>
+        <button id="btn-irish-plate-recognition">Irish Plate Recognition</button> -->
+        <!-- <span id="status">Loading...</span> -->
     </div>
 
     <div id="second-row-buttons">
+        <!-- <button id="btn-detect">Object Detection</button>
+        <button id="btn-pose">Pose Estimation</button>
+        <button id="btn-segmentation">Segmentation</button> -->
         <button id="btn-custom-model">Custom Model</button>
         <button id="btn-plate-recognition">Plate Recognition</button>
         <button id="btn-irish-plate-recognition">Irish Plate Recognition</button>
+        <!-- <span id="status">Loading...</span> -->
     </div>
 
     <div id="third-row-buttons">
+        <!-- <button id="btn-detect">Object Detection</button>
+        <button id="btn-pose">Pose Estimation</button>
+        <button id="btn-segmentation">Segmentation</button> -->
         <button id="btn-improved-irish-plate-recognition">Improved Irish Plate Recognition</button>
         <button id="btn-lprnet-anpr">LPRNet ANPR</button>
+        <!-- <button id="btn-road-detection">Road Detection</button> -->
+        <!-- <button id="btn-plate-recognition">Plate Recognition</button> -->
+        <!-- <button id="btn-irish-plate-recognition">Irish Plate Recognition</button> -->
+        <!-- <span id="status">Loading...</span> -->
     </div>
 
     <div id="fourth-row-buttons">
+        <!-- <button id="btn-detect">Object Detection</button>
+        <button id="btn-pose">Pose Estimation</button>
+        <button id="btn-segmentation">Segmentation</button> -->
         <button id="btn-road-detection">Road Detection</button>
         <button id="btn-road-detection-segmentation">Road Detection Segmentation</button>
+
+        <!-- <button id="btn-irish-plate-recognition">Irish Plate Recognition</button> -->
+        <!-- <span id="status">Loading...</span> -->
     </div>
 
+
+
+
+    <!-- </div> -->
     <div>
         <span id="status">Loading...</span>
     </div>
@@ -138,6 +192,7 @@
             <option value="10">10 FPS</option>
         </select>
 
+
         <span id="record-status" style="color:orange; margin-left:12px;">Recording: off</span>
     </div>
 
@@ -146,6 +201,7 @@
     </div>
 
     <div id="camera-settings-panel" style="display:none; margin-top:10px;">
+
         <div style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
             <select id="camera-preset-select">
                 <option value="Garage">Garage</option>
@@ -153,54 +209,49 @@
                 <option value="Night">Night</option>
             </select>
 
-            <button id="apply-camera-preset" style="margin-left:10px;">Apply preset</button>
+            <button id="apply-camera-preset" style="margin-left:10px;">
+                Apply preset
+            </button>
+
             <span id="camera-preset-status" style="color:orange; margin-left:12px;"></span>
         </div>
 
+
+
         <div id="focus-controls" style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
             <button id="focus-minus">Focus -</button>
-            <span id="focus-value" style="color:orange; margin: 0 12px; font-size: 0.8em;">Focus: 30</span>
+            <span id="focus-value" style="color:orange; margin: 0 12px;font-size: 0.6em;">Focus: 30</span>
             <button id="focus-plus">Focus +</button>
-            <!-- Dodatkowy Checkbox Auto Focus -->
-            <label style="margin-left: 15px;">
-                <input type="checkbox" id="autofocus-toggle"> Auto
-            </label>
-
         </div>
-        <!-- Sekcja Kontroli Focusa -->
 
+        <!-- <div id="exposure-controls" style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
+        <button id="exposure-minus">Exposure -</button>
+        <span id="exposure-value" style="color:orange; margin: 0 12px;">Exposure: -5</span>
+        <button id="exposure-plus">Exposure +</button>
+    </div> -->
 
-        <!-- <div class="focus-control" style="margin: 15px 0; padding: 10px; background: #222; color: #fff;">
-            <label>
-                <input type="checkbox" id="autoFocusToggle" onchange="toggleAutoFocus(this.checked)">
-                <strong>Auto Focus</strong>
-            </label>
+        <!-- <div style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
+        <button id="zoom-abs-minus">Zoom -</button>
+        <span id="zoom-abs-value" style="color:orange; margin: 0 12px;">Zoom: 100</span>
+        <button id="zoom-abs-plus">Zoom +</button>
+    </div> -->
 
-            <div id="manualFocusContainer" style="margin-top: 10px;">
-                <label for="focusRange">Ostrość (Manual): <span id="focusValDisplay">10</span></label>
-                <input type="range" id="focusRange" min="0" max="255" value="10" step="5"
-                    oninput="updateFocusDisplay(this.value)" onchange="sendManualFocus(this.value)">
-            </div>
-        </div> -->
-
-        <!-- Zoom -->
         <div style="display:flex; justify-content:center; align-items:center; margin-top:3px;">
             <button id="digital-zoom-minus">Digital Zoom -</button>
-            <span id="digital-zoom-value" style="color:orange; margin: 0 5px; font-size: 0.8em;">Digital Zoom:
+            <span id="digital-zoom-value" style="color:orange; margin: 0 5px;font-size: 0.6em;">Digital Zoom:
                 1.0x</span>
             <button id="digital-zoom-plus">Digital Zoom +</button>
         </div>
 
         <div id="gain-controls" style="display:flex; justify-content:center; align-items:center; margin-top:3px;">
             <button id="gain-minus">Gain -</button>
-            <span id="gain-value" style="color:orange; margin: 0 5px; font-size: 0.8em;">Gain: 0</span>
+            <span id="gain-value" style="color:orange; margin: 0 5px;font-size: 0.6em;">Gain: 0</span>
             <button id="gain-plus">Gain +</button>
         </div>
 
         <div style="display:flex; justify-content:center; align-items:center; margin-top:3px;">
             <button id="exposure-abs-minus">Exposure -</button>
-            <span id="exposure-abs-value" style="color:orange; margin: 0 5px; font-size: 0.8em;">Exposure abs:
-                210</span>
+            <span id="exposure-abs-value" style="color:orange; margin: 0 5px;font-size: 0.6em;">Exposure abs: 210</span>
             <button id="exposure-abs-plus">Exposure +</button>
         </div>
 
@@ -211,12 +262,21 @@
         </div>
     </div>
 
+
+
+
+
+
+
+
+
     <div id="stream-row" style="margin-top:10px">
         <img id="stream" src="/video_feed" width="640px" />
     </div>
 
     <script>
-        // 1. Deklaracje przycisków
+
+        // 1. Deklaracje wszystkich przycisków na samej górze
         const btnDetect = document.getElementById('btn-detect');
         const btnPose = document.getElementById('btn-pose');
         const btnSegmentation = document.getElementById('btn-segmentation');
@@ -226,20 +286,17 @@
         const btnImprovedIrishPlateRecognition = document.getElementById('btn-improved-irish-plate-recognition');
         const btnLprnetAnpr = document.getElementById('btn-lprnet-anpr');
         const btnRoadDetection = document.getElementById('btn-road-detection');
-        const btnRoadDetectionSegmentation = document.getElementById('btn-road-detection-segmentation');
+        const btnRoadDetectionSegmentation = document.getElementById('btn-road-detection-segmentation'); // Przeniesione wyżej
         const statusEl = document.getElementById('status');
 
-        // Stan aplikacji
+        // Stan aplikacji (tylko JEDNA deklaracja isRecording)
         let isRecording = false;
-        let focusValue = 10;
+        let focusValue = 30;
         let gainValue = 0;
         let exposureAbsValue = 110;
         let digitalZoomValue = 1.0;
 
-        // Baza URL dla usług systemowych z shutdown_server.py (port 5055)
-        const HELPER_URL = `http://${window.location.hostname}:5055`;
-
-        // 2. Obsługa przełączania modeli (adas.py)
+        // 2. Obsługa przełączania modeli
         async function switchModel(name) {
             disableButtons(true);
             statusEl.textContent = 'Switching...';
@@ -312,84 +369,23 @@
             }
         }
 
+        // Uruchomienie odpytywania statusu na starcie
         pollStatus();
 
-        // 3. Kontrola kamery (Focus, Gain, Exposure, Zoom, Preset) (adas.py)
-        // async function setFocus(value) {
-        //     focusValue = Math.max(0, Math.min(255, value));
-        //     document.getElementById('focus-value').textContent = `Focus: ${focusValue}`;
-        //     try {
-        //         await fetch('/camera/focus', {
-        //             method: 'POST',
-        //             headers: { 'Content-Type': 'application/json' },
-        //             body: JSON.stringify({ focus: focusValue })
-        //         });
-        //     } catch (e) { console.error(e); }
-        // }
-        // document.getElementById('focus-minus').onclick = () => setFocus(focusValue - 3);
-        // document.getElementById('focus-plus').onclick = () => setFocus(focusValue + 3);
-
-        // let focusValue = 10; // domyślna wartość początkowa
-
-        // 1. Funkcja dla ręcznego ustawiania ostrości (Manual Focus)
+        // 3. Kontrola kamery (Focus, Gain, Exposure, Zoom)
         async function setFocus(value) {
             focusValue = Math.max(0, Math.min(255, value));
-
-            // Aktualizujemy napis na froncie
-            const display = document.getElementById('focus-value');
-            if (display) display.textContent = `Focus: ${focusValue}`;
-
-            // Jeśli mamy checkbox autofocusa, odznaczamy go przy użyciu przycisków manualnych
-            const autoCheckbox = document.getElementById('autofocus-toggle');
-            if (autoCheckbox) autoCheckbox.checked = false;
-
+            document.getElementById('focus-value').textContent = `Focus: ${focusValue}`;
             try {
                 await fetch('/camera/focus', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        focus: focusValue,
-                        auto: false
-                    })
+                    body: JSON.stringify({ focus: focusValue })
                 });
-            } catch (e) {
-                console.error('Błąd ustawiania ostrości:', e);
-            }
+            } catch (e) { console.error(e); }
         }
-
-        // 2. Nowa funkcja dla włączania/wyłączania Auto Focusa
-        async function setAutoFocus(isAuto) {
-            const display = document.getElementById('focus-value');
-
-            if (isAuto && display) {
-                display.textContent = `Focus: AUTO`;
-            } else if (display) {
-                display.textContent = `Focus: ${focusValue}`;
-            }
-
-            try {
-                await fetch('/camera/focus', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        auto: isAuto,
-                        focus: focusValue
-                    })
-                });
-            } catch (e) {
-                console.error('Błąd przełączania Auto Focus:', e);
-            }
-        }
-
-        // Eventy dla przycisków + / -
         document.getElementById('focus-minus').onclick = () => setFocus(focusValue - 3);
         document.getElementById('focus-plus').onclick = () => setFocus(focusValue + 3);
-
-        // Optional: Event dla checkboxa Auto Focus (jeśli dodasz go do HTML)
-        const autoToggle = document.getElementById('autofocus-toggle');
-        if (autoToggle) {
-            autoToggle.onchange = (e) => setAutoFocus(e.target.checked);
-        }
 
         async function setGain(value) {
             gainValue = Math.max(0, Math.min(255, value));
@@ -440,6 +436,7 @@
         document.getElementById('camera-normal').onclick = () => setCameraOrientation('normal');
         document.getElementById('camera-car').onclick = () => setCameraOrientation('car');
 
+        // Wyświetlanie panelu ustawień kamery
         const toggleCameraSettingsBtn = document.getElementById('toggle-camera-settings');
         const cameraSettingsPanel = document.getElementById('camera-settings-panel');
         toggleCameraSettingsBtn.onclick = () => {
@@ -448,12 +445,14 @@
             toggleCameraSettingsBtn.textContent = isHidden ? 'Hide camera settings' : 'Camera settings';
         };
 
+        // Stosowanie presetów kamery
         document.getElementById('apply-camera-preset').onclick = async () => {
             const presetName = document.getElementById('camera-preset-select').value;
             const r = await fetch(`/camera/preset/${presetName}`, { method: 'POST' });
             const j = await r.json();
             if (j.ok) {
                 document.getElementById('camera-preset-status').textContent = `Applied: ${presetName}`;
+                // Aktualizacja zmiennych lokalnych JS wartościami z presetu
                 focusValue = j.focus;
                 exposureAbsValue = j.exposure_abs;
                 gainValue = j.gain;
@@ -467,95 +466,44 @@
             }
         };
 
-        // // 4. OBSŁUGA NAGRYWANIA I FOTO (adas.py -> przekazywane do Helpera)
-        // document.getElementById('record-toggle').onclick = async () => {
-        //     const res = document.getElementById('record-resolution').value;
-        //     const fps = parseInt(document.getElementById('record-fps').value);
-        //     const [width, height] = res.split('x').map(Number);
-
-        //     try {
-        //         const r = await fetch('/recording/toggle', {
-        //             method: 'POST',
-        //             headers: { 'Content-Type': 'application/json' },
-        //             body: JSON.stringify({ width, height, fps })
-        //         });
-        //         const j = await r.json();
-
-        //         if (j.ok) {
-        //             isRecording = j.recording;
-        //             document.getElementById('record-toggle').textContent = isRecording ? 'Stop recording' : 'Start recording';
-        //             document.getElementById('record-status').textContent = isRecording
-        //                 ? `Recording: ON ${width}x${height} ${fps}FPS`
-        //                 : 'Recording: off';
-        //         } else {
-        //             alert("Błąd nagrywania: " + (j.error || j.message));
-        //         }
-        //     } catch (e) {
-        //         console.error("Recording toggle error:", e);
-        //     }
-        // };
-
-        // document.getElementById('save-image').onclick = async () => {
-        //     try {
-        //         const r = await fetch('/recording/save_image', { method: 'POST' });
-        //         const j = await r.json();
-        //         document.getElementById('save-image-status').textContent = j.ok ? 'Image saved' : 'Save failed';
-        //     } catch (e) { console.error(e); }
-        // };
-        // 4. OBSŁUGA NAGRYWANIA I FOTO (Poprawna obsługa START / STOP w Helperze)
+        // 4. OBSŁUGA NAGRYWANIA (Skierowana na endpoint Pythona: /recording/toggle)
         document.getElementById('record-toggle').onclick = async () => {
             const res = document.getElementById('record-resolution').value;
             const fps = parseInt(document.getElementById('record-fps').value);
             const [width, height] = res.split('x').map(Number);
 
             try {
-                if (!isRecording) {
-                    // START NAGRYWANIA: Wysyłamy parametry wideo
-                    const r = await fetch(`${HELPER_URL}/recording/start`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ width, height, fps })
-                    });
-                    const j = await r.json();
+                const r = await fetch('/recording/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ width, height, fps })
+                });
+                const j = await r.json();
 
-                    if (r.ok && j.ok) {
-                        isRecording = true;
-                        document.getElementById('record-toggle').textContent = 'Stop recording';
-                        document.getElementById('record-status').textContent = `Recording: ON ${width}x${height} ${fps}FPS`;
-                    } else {
-                        alert("Błąd startu nagrywania: " + (j.message || j.error));
-                    }
+                if (j.ok) {
+                    isRecording = j.recording;
+                    document.getElementById('record-toggle').textContent = isRecording ? 'Stop recording' : 'Start recording';
+                    document.getElementById('record-status').textContent = isRecording
+                        ? `Recording: ON ${width}x${height} ${fps}FPS`
+                        : 'Recording: off';
                 } else {
-                    // STOP NAGRYWANIA: Proste wywołanie bez zbędnego body
-                    const r = await fetch(`${HELPER_URL}/recording/stop`, {
-                        method: 'POST'
-                    });
-                    const j = await r.json();
-
-                    if (r.ok && j.ok) {
-                        isRecording = false;
-                        document.getElementById('record-toggle').textContent = 'Start recording';
-                        document.getElementById('record-status').textContent = 'Recording: off';
-                    } else {
-                        alert("Błąd zatrzymania nagrywania: " + (j.message || j.error));
-                    }
+                    alert("Błąd nagrywania: " + j.error);
                 }
             } catch (e) {
                 console.error("Recording toggle error:", e);
             }
         };
 
-        // Zapis zdjęcia bezpośrednio przez Helpera
+        // ZAPIS JEDNEJ KLATKI (Skierowana na endpoint Pythona: /recording/save_image)
         document.getElementById('save-image').onclick = async () => {
             try {
-                const r = await fetch(`${HELPER_URL}/video_save`, { method: 'POST' });
+                const r = await fetch('/recording/save_image', { method: 'POST' });
                 const j = await r.json();
                 document.getElementById('save-image-status').textContent = j.ok ? 'Image saved' : 'Save failed';
             } catch (e) { console.error(e); }
         };
 
-
-        // 5. PANEL SYSTEMOWY (shutdown_server.py na porcie 5055)
+        // 5. PANEL SYSTEMOWY I ZARZĄDZANIE URZĄDZENIEM
         const systemPanelBtn = document.getElementById('toggle-system-panel');
         const systemPanel = document.getElementById('system-panel');
 
@@ -568,7 +516,9 @@
 
         async function updateSystemStatus() {
             try {
-                const r = await fetch(`${HELPER_URL}/system_status`);
+                // Panel statusu odpytuje bezpośrednio Helpera na porcie 5055
+                const helperBase = `http://${window.location.hostname}:5055`;
+                const r = await fetch(`${helperBase}/system_status`);
                 const s = await r.json();
 
                 document.getElementById('sys-temp').textContent = s.cpu_temperature;
@@ -588,11 +538,13 @@
             if (systemPanel.style.display !== 'none') { updateSystemStatus(); }
         }, 3000);
 
+        // Wywołania Helpera dla restartu/rebootu
         async function callHelperDirect(endpoint, message) {
             const ok = confirm(message);
             if (!ok) return;
             try {
-                const r = await fetch(`${HELPER_URL}/${endpoint}`, { method: 'POST' });
+                const helperBase = `http://${window.location.hostname}:5055`;
+                const r = await fetch(`${helperBase}/${endpoint}`, { method: 'POST' });
                 const j = await r.json();
                 alert(j.message);
             } catch (e) { console.error(e); }
@@ -600,7 +552,20 @@
 
         document.getElementById('btn-restart-adas').onclick = () => callHelperDirect('restart_adas', 'Restart ADAS application?');
         document.getElementById('btn-reboot-jetson').onclick = () => callHelperDirect('reboot', 'Reboot Jetson?');
-        document.getElementById('btn-shutdown').onclick = () => callHelperDirect('shutdown', 'Turn off Jetson?');
+
+        // WYŁĄCZANIE: Strzela bezpośrednio do Helpera na port 5055, omijając Flaska
+        document.getElementById('btn-shutdown').onclick = async () => {
+            const ok = confirm("Turn off Jetson?");
+            if (!ok) return;
+            try {
+                const helperUrl = `http://${window.location.hostname}:5055/shutdown`;
+                const r = await fetch(helperUrl, { method: 'POST' });
+                const j = await r.json();
+                alert(j.message);
+            } catch (e) {
+                console.error("Shutdown error:", e);
+            }
+        };
 
     </script>
 </body>
