@@ -1,0 +1,4 @@
+/* body { font-family: Arial, sans-serif; background: #121212; color: white; text-align: center; padding: 30px; } */
+.card { background: #1e1e1e; padding: 20px; border-radius: 10px; display: inline-block; width: 80%; }
+#status { color: #ffca28; font-weight: bold; margin-top: 15px; }
+#output { color: #00ff00; font-size: 20px; margin-top: 10px; }

@@ -2,20 +2,9 @@
 <html>
 <link href="https://googleapis.com" rel="stylesheet">
 
-
-
 <head>
-    <title>ADAS System</title>
-
     <meta charset="utf-8" />
     <title>Roboworld Jetson</title>
-    <link rel="stylesheet" href="/static/voice_css.css?v=1.0.5">
-    <!-- <script type="module" src="/static/js/transformers.min.js"></script> -->
-    <script type="module" src="/static/js/transformers.min.js?v=2.0"></script>
-    <!-- <script type="module" src="/static/js/voice_javascript.js"></script> -->
-    <script type="module" src="/static/js/voice_javascript.js?v=1.0.5"></script>
-
-
     <style>
         body {
             margin: 1rem;
@@ -66,19 +55,6 @@
         #stream-row {
             display: flex;
             justify-content: center;
-        }
-
-        .card {
-            background-color: #222;
-            color: #fff;
-            padding: 1px;
-            margin: 1px;
-        }
-
-        #record-btn {
-            padding: 5px 5px;
-            font-size: 0.8em;
-            cursor: pointer;
         }
     </style>
 </head>
@@ -166,23 +142,6 @@
     </div>
 
 
-    <!--  voice controlls -->
-    <div class="card">
-        <!-- <h1>ADAS System (100% Offline Local AI)</h1>
-        <p>Brak połączenia z Internetem. Przeglądarka zassała model bezpośrednio z dysku Jetsona.</p> -->
-        <p>Press a button to activate voice control</p>
-        <!-- <button id="record-btn" style="padding: 15px 30px; font-size: 18px; cursor: pointer;"> -->
-        <button id="record-btn">
-            🎙️ Voice control
-        </button>
-
-        <div id="status">Ładowanie...</div>
-        <div id="output"></div>
-    </div>
-
-
-
-
     <div id="stream-row" style="margin-top:10px">
         <img id="stream" src="/video_feed" width="640px" />
     </div>
@@ -258,20 +217,6 @@
         </div>
     </div>
 
-
-
-    <!--  voice buttons -->
-    <!-- <div class="card">
-        <h1>ADAS System (100% Offline Local AI)</h1>
-        <p>Brak połączenia z Internetem. Przeglądarka zassała model bezpośrednio z dysku Jetsona.</p>
-
-        <button id="record-btn" style="padding: 15px 30px; font-size: 18px; cursor: pointer;">
-            🎙️ Voice control
-        </button>
-
-        <div id="status">Ładowanie...</div>
-        <div id="output"></div>
-    </div> -->
 
     <script>
         // 1. Deklaracje przycisków

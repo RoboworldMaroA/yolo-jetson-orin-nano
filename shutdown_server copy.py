@@ -13,7 +13,9 @@ import queue
 
 app = Flask(__name__)
 CORS(app)
-
+# 1. Wyłącz keszowanie szablonów Jinja2 (HTML odświeża się natychmiast)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 # Globalne zmienne dla potoku wideo na hoście
 recording_active = False
 video_queue = queue.Queue(maxsize=300)

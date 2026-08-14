@@ -1,8 +1,6 @@
 
 # Author: Marek Augustyn
-# 09 August 2026
-#####  Voice commands  ########
-### Implemented , when user press button voice control  n ####
+# 26 July 2026
 # docker exec 9e80ed866c88 pkill -f adas_road.py
 # sudo systemctl restart adas.service
 # Track logs: tail -f /home/maro/yolo_app/flask_output.log

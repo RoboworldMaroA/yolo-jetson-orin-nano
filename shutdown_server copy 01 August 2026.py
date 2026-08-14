@@ -1,7 +1,5 @@
 # Author: Marek Augustyn
 # Date: 02 August 2026
-# Add a voice control for Jetson Orin Nano Super and camera microphone
-
 # Description: adar.helper is runing this flask app so you can manage from the website camera parametes and monitorin Jetson operations
 #.    sudo systemctl stop adas-helper.service
 #.    sudo systemctl restart adas-helper.service
@@ -28,10 +26,6 @@ import numpy as np
 import requests  # Import for shouting down Jetson Orin Nano from the web interface
 
 app = Flask(__name__)
-# 1. Wyłącz keszowanie szablonów Jinja2 (HTML odświeża się natychmiast)
-app.config['TEMPLATES_AUTO_RELOAD'] = True
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-
 CORS(app)  # Pełna obsługa Cross-Origin z kontenera Dockera
 
 # Globalne zmienne dla potoku wideo na hoście
@@ -172,39 +166,19 @@ def nvenc_write_worker(filename, width=1920, height=1080, target_fps=30):
 
 # --- ENDPOINTY DLA ZAPISU WIDEO I ZDJĘĆ ---
 
-# @app.route("/video_save", methods=["POST"])
-# def video_save():
-#     """Zapisuje pojedynczą klatkę wysłaną z aplikacji ADAS jako plik JPG w pełnej jakości."""
-#     if "frame" not in request.files:
-#         return jsonify({"ok": False, "message": "Brak pliku frame w żądaniu"}), 400
+@app.route("/video_save", methods=["POST"])
+def video_save():
+    """Zapisuje pojedynczą klatkę wysłaną z aplikacji ADAS jako plik JPG w pełnej jakości."""
+    if "frame" not in request.files:
+        return jsonify({"ok": False, "message": "Brak pliku frame w żądaniu"}), 400
         
-#     file = request.files["frame"]
-#     timestamp = time.strftime("%Y%m%d_%H%M%S")
-#     filename = os.path.join(IMAGES_DIR, f"frame_{timestamp}.jpg")
-#     file.save(filename)
+    file = request.files["frame"]
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    filename = os.path.join(IMAGES_DIR, f"frame_{timestamp}.jpg")
+    file.save(filename)
     
-#     return jsonify({"ok": True, "message": "Klatka zapisana pomyślnie na hoście", "file": filename})
+    return jsonify({"ok": True, "message": "Klatka zapisana pomyślnie na hoście", "file": filename})
 
-@app.route('/video_save', methods=['POST'])
-def save_image():
-    global latest_frame
-    try:
-        # Jeśli ostatnia klatka z adas.py istnieje
-        if latest_frame is not None:
-            filename = f"snapshot_{int(time.time())}.jpg"
-            cv2.imwrite(filename, latest_frame)
-            return jsonify({'ok': True, 'message': f'Saved: {filename}'}), 200
-        else:
-            # Fallback - informujemy adas.py w Dockerze pod IP 172.17.0.2
-            r = requests.post(
-                'http://172.17.0.2:5010/save_snapshot', timeout=1.0
-            )
-            return (
-                jsonify({'ok': True, 'message': 'Snapshot requested from ADAS'}),
-                200,
-            )
-    except Exception as e:
-        return jsonify({'ok': False, 'error': str(e)}), 400
 
 # @app.route("/recording/start", methods=["POST"])
 # def start_recording():
@@ -308,18 +282,11 @@ def start_recording():
     
     # Informujemy adas.py w Dockerze o transmisji Full HD
     try:
-
-        # requests.post(
-        #     'http://127.0.0.1:5010/set_recording_status', 
-        #     json={'enabled': True, 'width': width, 'height': height, 'fps': fps}, 
-        #     timeout=0.5
-        # )
         requests.post(
-        'http://172.17.0.2:5010/set_recording_status', 
-        json={'enabled': True, 'width': width, 'height': height, 'fps': fps}, 
-        timeout=0.5
-    )    
-    
+            'http://127.0.0.1:5010/set_recording_status', 
+            json={'enabled': True, 'width': width, 'height': height, 'fps': fps}, 
+            timeout=0.5
+        )
     except Exception as e:
         print(f"[Helper WARN] Nie udało się powiadomić adas.py: {e}")
 
@@ -345,15 +312,10 @@ def stop_recording():
     recording_active = False
     
     try:
-        # requests.post(
-        #     'http://127.0.0.1:5010/set_recording_status', 
-        #     json={'enabled': False}, 
-        #     timeout=0.5
-        # )
         requests.post(
-            'http://172.17.0.2:5010/set_recording_status',  # Użyj IP Dockera (widocznego w logach)
-            json={'enabled': False},
-            timeout=1.0,
+            'http://127.0.0.1:5010/set_recording_status', 
+            json={'enabled': False}, 
+            timeout=0.5
         )
         print("[Helper] Wyslano sygnal STOP do adas.py")
     except Exception as e:
@@ -398,12 +360,9 @@ def recording_status():
 def push_frame():
     global recording_active, video_queue
 
-    # if not recording_active:
-    #     print("[DEBUG] Odrzucono: recording_active jest FALSE!")
-    #     return jsonify({"ok": False, "reason": "Not active"}), 400
-    # Jeśli nagrywanie jest wyłączone, po prostu zignoruj klatkę (zwróć 200 OK)
     if not recording_active:
-        return jsonify({'ok': True, 'message': 'Recording inactive'}), 200
+        print("[DEBUG] Odrzucono: recording_active jest FALSE!")
+        return jsonify({"ok": False, "reason": "Not active"}), 400
 
     file_bytes = np.frombuffer(request.data, np.uint8)
     if len(file_bytes) == 0:
@@ -444,19 +403,11 @@ def reboot():
     return jsonify({"ok": True, "message": "Jetson rebooting..."})
 
 
-# @app.route("/restart_adas", methods=["POST"])
-# def restart_adas():
-#     subprocess.Popen(["/home/maro/restart_adas.sh"])
-#     return jsonify({"ok": True, "message": "ADAS restarting..."})
 @app.route("/restart_adas", methods=["POST"])
 def restart_adas():
-    try:
-        # Dodano 'sudo' przed ścieżką do skryptu
-        subprocess.Popen(["sudo", "/home/maro/restart_adas.sh"])
-        return jsonify({"ok": True, "message": "ADAS restarting..."}), 200
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
-        
+    subprocess.Popen(["/home/maro/restart_adas.sh"])
+    return jsonify({"ok": True, "message": "ADAS restarting..."})
+
 
 @app.route("/restart_helper", methods=["POST"])
 def restart_helper():
