@@ -9,13 +9,11 @@
 
     <meta charset="utf-8" />
     <title>Roboworld Jetson</title>
-    <link rel="stylesheet" href="/static/voice_css.css?v=1.1.8">
+    <link rel="stylesheet" href="/static/voice_css.css?v=1.0.9">
     <!-- <script type="module" src="/static/js/transformers.min.js"></script> -->
     <script type="module" src="/static/js/transformers.min.js?v=2.0"></script>
     <!-- <script type="module" src="/static/js/voice_javascript.js"></script> -->
-    <script type="module" src="/static/js/voice_javascript.js?v=1.2.9"></script>
-
-    <script src="/static/js/bluetooth_control.js?v=1.1.3" defer></script>
+    <script type="module" src="/static/js/voice_javascript.js?v=1.0.9"></script>
 
 
     <style>
@@ -32,7 +30,7 @@
         button {
             font-family: "Rajdhani", sans-serif;
             font-weight: 300;
-            color: #060606 !important;
+            font-color: rgba(44, 46, 10, 0.163);
             align-items: center;
             margin: 6px;
             padding: 8px 14px;
@@ -87,10 +85,10 @@
 </head>
 
 <body>
-    <!-- <h2>Object Detection, Pose Estimation, Segmentation.</h2>
+    <h2>Object Detection, Pose Estimation, Segmentation.</h2>
     <h2>Custom model - Yolo 11 (Jetson Orin Nano)</h2>
-    <h2>Recognize Irish registration plates (easyOCR)</h2> -->
-    <h2> ADAS - ROBO-WORLD</h2>
+    <h2>Recognize Irish registration plates (easyOCR)</h2>
+
     <div style="display:flex; justify-content:center; margin-top:10px;">
         <button id="toggle-system-panel">System</button>
     </div>
@@ -115,37 +113,27 @@
         </div>
     </div>
 
-    <!-- Models panel -->
-    <div style="display:flex; justify-content:center; margin-top:10px;">
-        <button id="toggle-models-panel">Models</button>
+    <div id="first-row-buttons">
+        <button id="btn-detect">Object Detection</button>
+        <button id="btn-pose">Pose Estimation</button>
+        <button id="btn-segmentation">Segmentation</button>
     </div>
-    <div id="models-panel"
-        style="display:none; margin-top:10px; color:white; text-align:left; max-width:420px; margin-left:auto; margin-right:auto; border:1px solid #444; padding:12px; border-radius:8px;">
-        <h3 style="text-align:center; color:orange; margin-top:0;">Pick a model</h3>
 
-        <div id="first-row-buttons" style="display:flex; flex-wrap:wrap; justify-content:center;">
-            <button id="btn-detect">Object Detection</button>
-            <button id="btn-pose">Pose Estimation</button>
-            <button id="btn-segmentation">Segmentation</button>
-        </div>
+    <div id="second-row-buttons">
+        <button id="btn-custom-model">Custom Model</button>
+        <button id="btn-plate-recognition">Plate Recognition</button>
+        <button id="btn-irish-plate-recognition">Irish Plate Recognition</button>
+    </div>
 
-        <div id="second-row-buttons" style="display:flex; flex-wrap:wrap; justify-content:center;">
-            <button id="btn-custom-model">Custom Model</button>
-            <button id="btn-plate-recognition">Plate Recognition</button>
-            <button id="btn-irish-plate-recognition">Irish Plate Recognition</button>
-        </div>
+    <div id="third-row-buttons">
+        <button id="btn-improved-irish-plate-recognition">Improved Irish Plate Recognition</button>
+        <button id="btn-lprnet-anpr">LPRNet ANPR</button>
+    </div>
 
-        <div id="third-row-buttons" style="display:flex; flex-wrap:wrap; justify-content:center;">
-            <button id="btn-improved-irish-plate-recognition">Improved Irish Plate Recognition</button>
-            <button id="btn-lprnet-anpr">LPRNet ANPR</button>
-        </div>
-
-        <div id="fourth-row-buttons" style="display:flex; flex-wrap:wrap; justify-content:center;">
-            <button id="btn-road-detection">Road Detection</button>
-            <button id="btn-road-detection-segmentation">Road Detection Segmentation</button>
-        </div>
-    </div><!-- End of the picking models -->
-
+    <div id="fourth-row-buttons">
+        <button id="btn-road-detection">Road Detection</button>
+        <button id="btn-road-detection-segmentation">Road Detection Segmentation</button>
+    </div>
 
     <div>
         <span id="status">Loading...</span>
@@ -184,12 +172,7 @@
         <div class="card">
             <!-- <h1>ADAS System (100% Offline Local AI)</h1>
         <p>Brak połączenia z Internetem. Przeglądarka zassała model bezpośrednio z dysku Jetsona.</p> -->
-            <p>The best working commands</p>
-            <p>Object detection,
-                Pose Estimation,
-                Segmentation,
-                Registration Recognition,
-                Next Option (Registration Fine Tuned model)</p>
+            <p>Press a button to activate voice control</p>
             <!-- <button id="record-btn" style="padding: 15px 30px; font-size: 18px; cursor: pointer;"> -->
             <button id="record-btn-voice">
                 🎙️ Voice control
@@ -205,11 +188,8 @@
     <div id="stream-row" style="margin-top:10px">
         <img id="stream" src="/video_feed" width="640px" />
     </div>
-    <div style="display:flex; justify-content:center; margin-top:10px;">
-        <button id="startBtn" onclick="initHondaRemote()">
-            Enable Steering Wheel Controls
-        </button>
-    </div>
+
+
     <div style="display:flex; justify-content:center; margin-top:10px;">
         <button id="toggle-camera-settings">Camera settings</button>
     </div>
@@ -228,7 +208,7 @@
 
         <div id="focus-controls" style="display:flex; justify-content:center; align-items:center; margin-top:10px;">
             <button id="focus-minus">Focus -</button>
-            <span id="focus-value" style="color:orange; margin: 0 12px; font-size: 0.8em;">Focus: 0</span>
+            <span id="focus-value" style="color:orange; margin: 0 12px; font-size: 0.8em;">Focus: 30</span>
             <button id="focus-plus">Focus +</button>
             <!-- Dodatkowy Checkbox Auto Focus -->
             <label style="margin-left: 15px;">
@@ -311,7 +291,7 @@
 
         // Stan aplikacji
         let isRecording = false;
-        let focusValue = 0;
+        let focusValue = 10;
         let gainValue = 0;
         let exposureAbsValue = 110;
         let digitalZoomValue = 1.0;
@@ -335,9 +315,6 @@
             }
             pollStatus();
         }
-
-        // Umożliwia wywołanie funkcji przez plik bluetooth_control.js
-        window.switchModel = switchModel;
 
         btnDetect.onclick = () => switchModel('detection');
         btnPose.onclick = () => switchModel('pose');
@@ -685,20 +662,6 @@
         document.getElementById('btn-restart-adas').onclick = () => callHelperDirect('restart_adas', 'Restart ADAS application?');
         document.getElementById('btn-reboot-jetson').onclick = () => callHelperDirect('reboot', 'Reboot Jetson?');
         document.getElementById('btn-shutdown').onclick = () => callHelperDirect('shutdown', 'Turn off Jetson?');
-
-
-        // 5. PANEL Modeli
-        const modelsPanelBtn = document.getElementById('toggle-models-panel');
-        const modelsPanel = document.getElementById('models-panel');
-
-        modelsPanelBtn.onclick = () => {
-            const hidden = modelsPanel.style.display === 'none';
-            modelsPanel.style.display = hidden ? 'block' : 'none';
-
-            // Zmieniamy tekst samego PRZYCISKU, a nie zawartość panela!
-            modelsPanelBtn.textContent = hidden ? 'Hide Models' : 'Models';
-        };
-
 
     </script>
 </body>

@@ -1,4 +1,31 @@
 /* body { font-family: Arial, sans-serif; background: #121212; color: white; text-align: center; padding: 30px; } */
-.card { background: #1e1e1e; padding: 20px; border-radius: 10px; display: inline-block; width: 80%; }
-#status { color: #ffca28; font-weight: bold; margin-top: 15px; }
-#output { color: #00ff00; font-size: 20px; margin-top: 10px; }
+/* .card { background: #1e1e1e;
+padding: 20px;
+border-radius: 10px;
+display: inline-block;
+width: 80%;
+justify-content: center;
+align-items: center; } */
+
+#voice-control{
+    /* background-color: #1e1e1e; */
+    background-color: #060606 !important;
+    justify-content: center;
+    align-items: center;
+}
+
+#voice-control p{
+        background-color: #060606 !important;
+}
+   #record-btn-voice {
+            padding: 5px 5px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+
+#status { color: #ffca28;
+     font-weight: bold;
+      margin-top: 15px;
+       justify-content: center !important;
+    }
+#output { color: #00ff00; font-size: 20px; margin-top: 10px; justify-content: center;}

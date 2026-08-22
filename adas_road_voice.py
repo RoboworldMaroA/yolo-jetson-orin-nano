@@ -221,15 +221,15 @@ HELPER_URL = "https://172.17.0.1:5055"  # lub "http://192.168.0.12:5055"
 is_recording = False
 
 # Focus variables for the Irish plate recognition pipeline
-camera_focus = 30
+camera_focus = 1
 # camera_exposure = -5
-camera_exposure_abs = 210
+camera_exposure_abs = 140
 camera_gain = 0
 cap_global = None
 V4L2_CTL = "/usr/bin/v4l2-ctl"
 camera_digital_zoom = 1.0
 
-camera_zoom_abs = 150
+camera_zoom_abs = 140
 
 #variable flip frame for camera
 camera_flip_180 = False
@@ -1097,7 +1097,8 @@ def producer():
             if not record_queue.full():
                 record_queue.put_nowait(frame.copy()) # Wrzucenie do RAMu zajmuje 0.0001 sekundy!
 
-        frame = cv2.resize(frame, (1280, 720))
+        # frame = cv2.resize(frame, (1280, 720))
+        frame = cv2.resize(frame, (1920, 1080))
         # get active model (may be None if still loading)
         model = manager.get_active()
         annotated = frame
@@ -1477,7 +1478,7 @@ def save_current_image():
 @app.route("/system/shutdown", methods=["POST"])
 def shutdown_jetson():
     host_ip = get_docker_host_gateway()
-    url = f"http://{host_ip}:5055/shutdown"
+    url = f"https://{host_ip}:5055/shutdown"
 
     r = requests.post(url, timeout=3)
 

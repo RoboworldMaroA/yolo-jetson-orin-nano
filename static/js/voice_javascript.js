@@ -31,7 +31,7 @@ async function initWhisper() {
 document.addEventListener('DOMContentLoaded', () => {
     initWhisper();
 
-    const recordBtn = document.getElementById('record-btn');
+    const recordBtn = document.getElementById('record-btn-voice');
 
     // Inicjalizacja strumienia mikrofonu z MacBooka
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
 
                 mediaRecorder.onstop = async () => {
-                    console.log("⏹️ Recording stopped. Processing audio...");
+                    console.log("⏹️ Voice recording stopped. Processing audio...");
                     const statusEl = document.getElementById('status');
                     if (statusEl) statusEl.innerText = "🧠 Processing speech...";
 
@@ -97,14 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             audioChunks = [];
                             mediaRecorder.start();
                             isRecording = true;
-                            recordBtn.innerText = "🛑 Stop recording";
+                            recordBtn.innerText = "🛑 Stop video recording";
                             recordBtn.style.backgroundColor = "#b00020";
                             const statusEl = document.getElementById('status');
                             if (statusEl) statusEl.innerText = "🎙️ Listening... Speak command";
                         } else {
                             mediaRecorder.stop();
                             isRecording = false;
-                            recordBtn.innerText = "🎙️ Start recording";
+                            recordBtn.innerText = "🎙️ Start voice recording";
                             recordBtn.style.backgroundColor = "";
                         }
                     });
@@ -123,9 +123,9 @@ function processVoiceCommand(cmd) {
     // Model switching (przekazywanie exact ID modeli z Twojego JS)
     if (cmd.includes("road detection segmentation") || cmd.includes("road segmentation")) {
         triggerButtonClick('btn-road-detection-segmentation');
-    } else if (cmd.includes("road detection") || cmd.includes("road")) {
+    } else if (cmd.includes("road line") || cmd.includes("road")) {
         triggerButtonClick('btn-road-detection');
-    } else if (cmd.includes("improved irish plate") || cmd.includes("improved plate")) {
+    } else if (cmd.includes("registration") || cmd.includes("registration recognition")) {
         triggerButtonClick('btn-improved-irish-plate-recognition');
     } else if (cmd.includes("irish plate") || cmd.includes("irish")) {
         triggerButtonClick('btn-irish-plate-recognition');
@@ -135,14 +135,25 @@ function processVoiceCommand(cmd) {
         triggerButtonClick('btn-lprnet-anpr');
     } else if (cmd.includes("custom model") || cmd.includes("yolo 11")) {
         triggerButtonClick('btn-custom-model');
-    } else if (cmd.includes("pose estimation") || cmd.includes("pose")) {
+    } else if (cmd.includes("pose estimation") || cmd.includes("pose")|| cmd.includes("awesome")|| cmd.includes("estimation")|| cmd.includes("the first information")) {
         triggerButtonClick('btn-pose');
-    } else if (cmd.includes("segmentation")) {
+    } else if (cmd.includes("segmentation") || cmd.includes("segment")|| cmd.includes("augmentation")|| cmd.includes("signification")) {
         triggerButtonClick('btn-segmentation');
-    } else if (cmd.includes("object detection") || cmd.includes("detection") || cmd.includes("objects")) {
+    } else if (cmd.includes("object detection") || cmd.includes("detection") || cmd.includes("objects")|| cmd.includes("of protection")) {
         triggerButtonClick('btn-detect');
     } 
     
+    else if (cmd.includes("next") || cmd.includes("next option") || cmd.includes("option")) {
+        //If user say next then use next model
+        const arrayButtons = ['btn-detect','btn-segmentation']
+        for(let i=0;i < arrayButtons.length;i++){
+            console.log(arrayButtons[i])
+            if(arrayButtons[i]=0){
+                triggerButtonClick(i);
+                i++;
+            }
+        }
+    } 
     // Utwalanie nagrania / robienie zdjęć
     else if (cmd.includes("start recording") || cmd.includes("record video") || cmd.includes("stop recording")) {
         triggerButtonClick('record-toggle');
@@ -159,15 +170,39 @@ function processVoiceCommand(cmd) {
     
     else {
         console.warn("⚠️ Command not recognized:", cmd);
-        if (statusEl) statusEl.innerText = `⚠️ Unrecognized command: "${cmd}"`;
+        if (statusEl)statusEl.innerText = `⚠️ Unrecognized command try again: "${cmd}"`
+            triggerButtonClick('record-btn-voice')
+
     }
 }
 
 // Helper wywołujący zdarzenie `.click()` na przycisku
+// function triggerButtonClick(buttonId) {
+//     const btn = document.getElementById(buttonId);
+//     if (btn) {
+//         console.log(`🚀 Executing click on #${buttonId}`);
+//         btn.click();
+//     } else {
+//         console.error(`❌ Button with ID #${buttonId} not found in DOM.`);
+//     }
+// }
+
+// Helper wywołujący zdarzenie `.click()` oraz wypowiadający nazwę modelu
 function triggerButtonClick(buttonId) {
     const btn = document.getElementById(buttonId);
     if (btn) {
         console.log(`🚀 Executing click on #${buttonId}`);
+
+        // 1. Wyciągamy czystą nazwę modelu z ID przycisku (usuwamy "btn-")
+        const modelName = buttonId.replace('btn-', '');
+
+        // 2. Wywołujemy syntezę mowy z bluetooth_control.js (jeśli istnieje)
+        if (typeof speakModelName === 'function' && typeof MODEL_VOICE_NAMES !== 'undefined') {
+            const voiceText = MODEL_VOICE_NAMES[modelName] || `${modelName.replace(/-/g, ' ')} active`;
+            speakModelName(voiceText);
+        }
+
+        // 3. Wykonujemy kliknięcie w przycisk
         btn.click();
     } else {
         console.error(`❌ Button with ID #${buttonId} not found in DOM.`);
